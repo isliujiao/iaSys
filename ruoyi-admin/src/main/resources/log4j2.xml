@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<!-- Log4j 2.x 配置文件。每30秒自动检查和应用配置文件的更新；http://logging.apache.org/log4j/2.x/manual/configuration.html -->
+<Configuration type="warn" monitorInterval="30" strict="true" schema="Log4J-V2.2.xsd">
+    <Appenders>
+        <!-- 输出到控制台 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- 需要记录的级别 -->
+            <Filters>
+                <ThresholdFilter level="${log.level.console}" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout
+                    pattern="[ia-${env}]-%date{yyyy-MM-dd HH:mm:ss,SSS}-[%thread][%level]-[traceId:%X{traceId}]【%msg%xEx】[%c:%M:%L]%n"/>
+        </Console>
+
+        <!-- 输出到文件，按天或者超过30MB分割 -->
+        <RollingFile name="RollingFile" append="true" immediateFlush="true"
+                     fileName="${log.path}/${project.name}/ia.log"
+                     filePattern="${log.path}/${project.name}/$${date:yyyy-MM-dd}/ia_%d{HH}.log">
+            <!--控制台只输出level及其以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <Filters>
+                <ThresholdFilter level="${log.level.root}" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout
+                    pattern="[ia-${env}]-%date{yyyy-MM-dd HH:mm:ss,SSS}-[%thread][%level]-[traceId:%X{traceId}]【%msg%xEx】[%c:%M:%L]%n"/>
+            <Policies>
+                <!-- TimeBased Triggering Policy 基于时间的触发策略。该策略主要是完成周期性的log文件封存工作。有两个参数：
+                interval，integer型，指定两次封存动作之间的时间间隔。单位:以日志的命名精度来确定单位，比如上面的filePattern中的yyyy-MM-dd-HH 单位为小时，yyyy-MM-dd-HH-mm 单位为分钟
+                modulate，boolean型，说明是否对封存时间进行调制。若modulate=true，则封存时间将以0点为边界进行偏移计算。
+                比如，modulate=true，interval=4hours，那么假设上次封存日志的时间为03:00，则下次封存日志的时间为04:00，之后的封存时间依次为08:00，12:00，16:00，。。。-->
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- 全局配置 -->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+        <Logger name="com.ruoyi" level="warn" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.ruoyi" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="druid.sql.Statement" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="druid.sql.ResultSet" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="mapper.system" level="${log.level.root}" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+    </Loggers>
+</Configuration>

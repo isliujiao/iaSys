@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ChartMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.common.core.domain.entity.Chart">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="goal" column="goal" jdbcType="VARCHAR"/>
+            <result property="chartName" column="chartName" jdbcType="VARCHAR"/>
+            <result property="chartData" column="chartData" jdbcType="VARCHAR"/>
+            <result property="chartType" column="chartType" jdbcType="VARCHAR"/>
+            <result property="genChart" column="genChart" jdbcType="VARCHAR"/>
+            <result property="genResult" column="genResult" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="execMessage" column="execMessage" jdbcType="VARCHAR"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="chart">
+        id,goal,chartName,chartData,chartType,genChart,status,execMessage
+        genResult,userId,createTime,updateTime,isDelete
+    </sql>
+
+    <sql id="selectChart">
+        select c.id,c.goal,c.chartName,c.chartData,c.chartType,c.genChart,c.status,c.execMessage,c.genResult,c.userId,c.createTime,c.updateTime,c.isDelete
+        from chart c
+    </sql>
+
+
+    <select id="selectById" resultType="com.ruoyi.common.core.domain.entity.Chart">
+        <include refid="selectChart"/>
+        where id = #{chartId}
+        and c.isDelete = '0'
+    </select>
+
+    <select id="listMyChartByPage" resultType="com.ruoyi.common.core.domain.entity.Chart">
+        <include refid="selectChart"/>
+        where c.isDelete = '0'
+        and c.userId = #{userId}
+        order by c.createTime desc
+    </select>
+
+    <insert id="insertChart">
+        insert into chart(
+            <if test="id != null and id != 0">id,</if>
+            <if test="goal != null and goal != ''">goal,</if>
+            <if test="chartName != null and chartName != ''">chartName,</if>
+            <if test="chartData != null and chartData != ''">chartData,</if>
+            <if test="chartType != null and chartType != ''">chartType,</if>
+            <if test="genChart != null and genChart != ''">genChart,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="execMessage != null and execMessage != ''">execMessage,</if>
+            <if test="genResult != null and genResult != ''">genResult,</if>
+            <if test="userId != null and userId != ''">userId</if>
+        )values(
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="goal != null and goal != ''">#{goal},</if>
+            <if test="chartName != null and chartName != ''">#{chartName},</if>
+            <if test="chartData != null and chartData != ''">#{chartData},</if>
+            <if test="chartType != null and chartType != ''">#{chartType},</if>
+            <if test="genChart != null and genChart != ''">#{genChart},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="execMessage != null and execMessage != ''">#{execMessage},</if>
+            <if test="genResult != null and genResult != ''">#{genResult},</if>
+            <if test="userId != null and userId != ''">#{userId}</if>
+        )
+    </insert>
+
+    <update id="updateChartById" parameterType="Chart">
+        update chart
+        <set>
+            <if test="goal != null">goal = #{goal},</if>
+            <if test="chartName != null and chartName != ''">chartName = #{chartName},</if>
+            <if test="chartData != null and chartData != ''">chartData = #{chartData},</if>
+            <if test="chartType != null and chartType != ''">chartType = #{chartType},</if>
+            <if test="genChart != null">genChart = #{genChart},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="execMessage != null and execMessage != ''">execMessage = #{execMessage},</if>
+            <if test="genResult != null">genResult = #{genResult},</if>
+            <if test="userId != null">userId = #{userId},</if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

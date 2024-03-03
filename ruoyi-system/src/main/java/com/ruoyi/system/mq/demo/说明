@@ -1,0 +1,10 @@
+RabbitMQ 中消息传递模型的核心思想是生产者 从不将任何消息直接发送到队列。实际上，
+很多时候 生产者甚至不知道消息是否会传递给任何人 队列。
+
+1、Hello World：发送者发送一条消息，接收者接收消息
+2、Work Queues：每个消息都是只交付给一个接收者，接收者互相竞争
+3、Publish Subscribe：接收者订阅一个话题，发送者发送消息到话题，所有订阅该话题的接收者都会收到消息
+4、Routing：只将 消息 发送给和 交换机 绑定相同routingKey队列
+5、Topics：根据发布的消息内容中的routing key进行匹配
+6、RPC：远程过程调用
+7、Publisher Confirms

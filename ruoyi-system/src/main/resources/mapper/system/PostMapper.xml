@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.PostMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.common.core.domain.entity.Post">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
+        <result property="thumbNum" column="thumbNum" jdbcType="BIGINT"/>
+        <result property="favourNum" column="favourNum" jdbcType="BIGINT"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,content,tags,
+        thumbNum,favourNum,userId,
+        createTime,updateTime,isDelete
+    </sql>
+
+    <sql id="selectPost">
+        select p.id, p.title,p.content,p.tags,p.thumbNum,p.favourNum,p.userId,p.createTime,p.updateTime,p.isDelete
+        from post p
+    </sql>
+
+    <insert id="insertPostList" parameterType="post">
+        insert into post(title,content,tags,thumbNum,favourNum,userId)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+             #{item.title},#{item.content},#{item.tags},#{item.thumbNum},
+             #{item.favourNum}, #{item.userId}
+            )
+        </foreach>
+    </insert>
+
+    <select id="listPostWithDelete" resultType="com.ruoyi.common.core.domain.entity.Post">
+        <include refid="selectPost"/>
+        where p.updateTime >= #{minUpdateTime}
+        and p.isDelete = '0'
+    </select>
+
+    <select id="selectByIds" resultType="com.ruoyi.common.core.domain.entity.Post" resultMap="BaseResultMap">
+        <include refid="selectPost"/>
+        where p.id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+             #{id}
+        </foreach>
+        and p.isDelete = '0'
+    </select>
+
+    <select id="selectTopFive" resultType="com.ruoyi.system.domain.vo.SearchVO" resultMap="BaseResultMap">
+        <include refid="selectPost"/>
+        where p.isDelete = '0'
+        order by p.thumbNum desc
+        limit 5
+    </select>
+
+</mapper>
