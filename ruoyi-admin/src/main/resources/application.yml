@@ -1,0 +1,204 @@
+# 项目相关配置
+ruoyi:
+  # 名称
+  name: RuoYi
+  # 版本
+  version: 3.8.6
+  # 版权年份
+  copyrightYear: 2023
+  # 实例演示开关
+  demoEnabled: true
+  # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
+  profile: D:/ruoyi/uploadPath
+  # 获取ip地址开关
+  addressEnabled: false
+  # 验证码类型 math 数字计算 char 字符验证
+  captchaType: math
+
+# 开发环境配置
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 8080
+  servlet:
+    # 应用的访问路径
+    context-path: /
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # 连接数满后的排队数，默认为100
+    accept-count: 1000
+    threads:
+      # tomcat最大线程数，默认为200
+      max: 800
+      # Tomcat启动初始化的线程数，默认值10
+      min-spare: 100
+
+# 日志配置
+logging:
+  level:
+    com.ruoyi: debug
+    org.springframework: warn
+
+# 用户配置
+user:
+  password:
+    # 密码最大错误次数
+    maxRetryCount: 5
+    # 密码锁定时间（默认10分钟）
+    lockTime: 10
+
+# Spring配置
+spring:
+  # 资源信息
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+  profiles:
+    active: druid
+  # 文件上传
+  servlet:
+    multipart:
+      # 单个文件大小
+      max-file-size: 10MB
+      # 设置总上传的文件大小
+      max-request-size: 20MB
+  # 服务模块
+  devtools:
+    restart:
+      # 热部署开关
+      enabled: true
+  # redis 配置
+  redis:
+    # 地址
+    host: 118.178.231.233
+    # 端口，默认为6379
+    port: 6379
+    # 数据库索引
+    database: 0
+    # 密码
+    password:
+    # 连接超时时间
+    timeout: 10s
+    lettuce:
+      pool:
+        # 连接池中的最小空闲连接
+        min-idle: 0
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池的最大数据库连接数
+        max-active: 8
+        # #连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+  # Elasticsearch 配置
+  # todo 需替换配置，然后取消注释
+  elasticsearch:
+    rest:
+      uris: 118.178.231.233:9200
+      connection-timeout: 2s
+  #RabbitMQ
+  rabbitmq:
+    host: 118.178.231.233
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    # 阿里云 OSS 对象存储
+    alicloud:
+      access-key: LTAI5t86X2S5JGySRPgmetnk
+      secret-key: 3TcptFZQA2R7MhGkF4R0DYAMv2uDj2
+      oss:
+        endpoint: oss-cn-beijing.aliyuncs.com
+        bucket: ia-isliujiao
+
+websocket:
+  path: /chat
+
+# token配置
+token:
+  # 令牌自定义标识
+  header: Authorization
+  # 令牌密钥
+  secret: abcdefghijklmnopqrstuvwxyz
+  # 令牌有效期（默认30分钟）
+  expireTime: 30
+
+# MyBatis配置
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage: com.ruoyi.**.domain
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+# PageHelper分页插件
+pagehelper:
+  helperDialect: mysql
+  supportMethodsArguments: true
+  params: count=countSql
+
+# Swagger配置
+swagger:
+  # 是否开启swagger
+  enabled: true
+  # 请求前缀
+  pathMapping: /dev-api
+
+# 防止XSS攻击
+xss:
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes: /system/notice
+  # 匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*
+
+# 鱼聪明Api
+yuapi:
+  client:
+    access-key: 6k0oc1we3o62fdoll85aig166alo9a9v
+    secret-key: ku5y1ej13otjabzl3fsu41b0d1q3tyvp
+
+# 讯飞星火
+xfxh:
+  # 服务引擎使用 讯飞星火认知大模型V2.0，如果使用 V1.5 需要将 hostUrl 修改为 https://spark-api.xf-yun.com/v1.1/chat
+  hostUrl: https://spark-api.xf-yun.com/v2.1/chat
+#  hostUrl: https://xinghuo.xfyun.cn/botweb/2066070
+  # 发送请求时指定的访问领域，如果是 V1.5版本 设置为 general，如果是 V2版本 设置为 generalv2
+  domain: generalv2
+  # 核采样阈值。用于决定结果随机性，取值越高随机性越强即相同的问题得到的不同答案的可能性越高。取值 [0,1]
+  temperature: 0.5
+  # 模型回答的tokens的最大长度，V1.5取值为[1,4096]，V2.0取值为[1,8192]。
+  maxTokens: 2048
+  # 大模型回复问题的最大响应时长，单位 s
+  maxResponseTime: 30
+  # 允许同时连接大模型的 websocket 数，如果是普通（免费）用户为 2，超过这个数连接响应会报错，具体参考官网。
+  QPS: 2
+  # 用于权限验证，从服务接口认证信息中获取
+  appId: dcd44822
+  # 用于权限验证，从服务接口认证信息中获取
+  apiKey: 6c7c3bd81c565c69bb19438c3d5b51da
+  # 用于权限验证，从服务接口认证信息中获取
+  apiSecret: NTUwOTIyZmU1MGVjNTVkYjZhNmRmMzg5
+
+#############################
+#	settings for log4j2		#
+#############################
+log:
+  # 日志路径
+  path: /data/ftp/log/prd/ia
+  level:
+    # 日志级别
+    root: info
+    # console日志级别
+    console: off
