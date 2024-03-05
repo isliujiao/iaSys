@@ -3,7 +3,6 @@ package com.ruoyi.web.controller.bi;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.system.domain.dto.chart.ChartQueryRequest;
 import com.ruoyi.system.domain.dto.chart.GenChartByAiRequest;
 import com.ruoyi.system.service.ChartService;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
