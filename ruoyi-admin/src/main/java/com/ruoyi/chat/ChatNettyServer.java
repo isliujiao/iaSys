@@ -35,17 +35,23 @@ public class ChatNettyServer {
     public final ChannelGroup GROUP = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public void start() throws Exception {
+        // TODO 【序号】 Netty启动过程
+        // 【1】bossGroup用于接收连接，workerGroup用于具体的读写等处理
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup group = new NioEventLoopGroup();
         try {
+            //【2】创建服务端启动引导/辅助类：ServerBootstrap
             ServerBootstrap sb = new ServerBootstrap();
             sb.option(ChannelOption.SO_BACKLOG, 1024);
+            //【3】给引导类配置两大线程组,确定了线程模型
             sb.group(group, bossGroup) // 绑定线程池
+                    //【4】指定IO模型、 绑定端口
                     .channel(NioServerSocketChannel.class) // 指定使用的channel
                     .localAddress(9044)// 绑定监听端口
                     .childHandler(new ChannelInitializer<SocketChannel>() { // 绑定客户端连接时候触发操作
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
+                            //【5】自定义处理逻辑
                             //心跳
                             ch.pipeline().addLast(new IdleStateHandler(5, 5, 0, TimeUnit.SECONDS));
                             ch.pipeline().addLast(new ImHeartBeatHandler());
@@ -60,10 +66,12 @@ public class ChatNettyServer {
 //                            ch.pipeline().addLast(new HeartBeatHandler());
                         }
                     });
+            //【6】阻塞等待直到服务器Channel关闭(closeFuture()方法获取Channel
             ChannelFuture cf = sb.bind().sync(); // 服务器异步创建绑定
             System.out.println(ChatNettyServer.class + "已启动，正在监听： " + cf.channel().localAddress());
             cf.channel().closeFuture().sync(); // 关闭服务器通道
         } finally {
+            //【7】优雅释放相关线程组资源
             group.shutdownGracefully().sync(); // 释放线程池资源
             bossGroup.shutdownGracefully().sync();
         }
