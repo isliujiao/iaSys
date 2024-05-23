@@ -104,8 +104,8 @@ spring:
   cloud:
     # 阿里云 OSS 对象存储
     alicloud:
-      access-key: LTAI5t86X2S5JGySRPgmetnk
-      secret-key: 3TcptFZQA2R7MhGkF4R0DYAMv2uDj2
+      access-key: xxx
+      secret-key: xxx
       oss:
         endpoint: oss-cn-beijing.aliyuncs.com
         bucket: ia-isliujiao
