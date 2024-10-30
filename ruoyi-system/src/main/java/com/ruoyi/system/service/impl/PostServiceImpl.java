@@ -67,6 +67,8 @@ public class PostServiceImpl implements PostService {
         long pageSize = postQueryRequest.getPageSize();
         String sortField = postQueryRequest.getSortField();
         String sortOrder = postQueryRequest.getSortOrder();
+
+        // 构建ES查询构建器
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         // 过滤
         boolQueryBuilder.filter(QueryBuilders.termQuery("isDelete", 0));
@@ -122,16 +124,15 @@ public class PostServiceImpl implements PostService {
         // 构造查询
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder)
                 .withPageable(pageRequest).withSort(sortBuilder).build();
+        // 执行查询
         SearchHits<PostEsDTO> searchHits = elasticsearchRestTemplate.search(searchQuery, PostEsDTO.class);
-//        Page<Post> page = new Page<>();
-//        page.setTotal(searchHits.getTotalHits());
+
         List<Post> resourceList = new ArrayList<>();
         // 查出结果后，从 db 获取最新动态数据（比如点赞数）
         if (searchHits.hasSearchHits()) {
             List<SearchHit<PostEsDTO>> searchHitList = searchHits.getSearchHits();
             List<Long> postIdList = searchHitList.stream().map(searchHit -> searchHit.getContent().getId())
                     .collect(Collectors.toList());
-//            List<Post> postList = baseMapper.selectBatchIds(postIdList);
             List<Post> postList = postMapper.selectByIds(postIdList);
             if (postList != null) {
                 Map<Long, List<Post>> idPostMap = postList.stream().collect(Collectors.groupingBy(Post::getId));
@@ -146,7 +147,6 @@ public class PostServiceImpl implements PostService {
                 });
             }
         }
-//        page.setRecords(resourceList);
         return resourceList;
     }
 }
