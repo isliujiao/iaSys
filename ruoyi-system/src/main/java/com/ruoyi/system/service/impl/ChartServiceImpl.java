@@ -165,6 +165,7 @@ public class ChartServiceImpl implements ChartService {
 
     //弃用
     @Override
+    @Deprecated
     public Boolean genChartByAiAsync(MultipartFile multipartFile, GenChartByAiRequest genChartByAiRequest) {
         String chartName = genChartByAiRequest.getChartName();
         String goal = genChartByAiRequest.getGoal();
