@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.common.core.domain.entity.Post;
+import com.ruoyi.system.domain.dto.post.PostEsDTO;
 import com.ruoyi.system.domain.dto.post.PostQueryRequest;
 import com.ruoyi.system.domain.vo.SearchVO;
 
@@ -32,6 +33,16 @@ public interface PostService{
      * @return
      */
     List<SearchVO> searchTopFive();
+
+    /**
+     * 根据文章ID推荐相关文章
+     *
+     * @param id 文章ID
+     * @param pageNum 当前页
+     * @param pageSize 每页大小
+     * @return
+     */
+    List<PostEsDTO> recommend(Long id, Integer pageNum, Integer pageSize);
 
     /**
      * 校验

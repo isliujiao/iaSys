@@ -1,5 +1,7 @@
 package com.ruoyi.system.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ruoyi.common.constant.CommonConstant;
 import com.ruoyi.common.core.domain.entity.Post;
 import com.ruoyi.system.domain.dto.post.PostEsDTO;
@@ -10,8 +12,11 @@ import com.ruoyi.system.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -20,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
@@ -42,6 +48,8 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
+    private final static Gson GSON = new Gson();
+
     @Override
     public boolean insertPostList(List<Post> postList) {
         return postMapper.insertPostList(postList);
@@ -50,6 +58,50 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<SearchVO> searchTopFive() {
         return postMapper.selectTopFive();
+    }
+
+    @Override
+    public List<PostEsDTO> recommend(Long id, Integer pageNum, Integer pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        List<Post> postList = postMapper.selectAllById(id);
+        if (CollectionUtils.isNotEmpty(postList)) {
+            Post post = postList.get(0);
+            String title = post.getTitle();
+            List<String> tagsList = GSON.fromJson(post.getTags(), new TypeToken<List<String>>() {
+            }.getType());
+
+            ArrayList<FunctionScoreQueryBuilder.FilterFunctionBuilder> filterFunctionBuilders = new ArrayList<>();
+            // 标题匹配程度40%
+            filterFunctionBuilders.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(QueryBuilders.matchQuery("title", title)
+                    , ScoreFunctionBuilders.weightFactorFunction(4)));
+            // 标签匹配程度50%
+            for (String tag : tagsList) {
+                filterFunctionBuilders.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(QueryBuilders.matchQuery("tags", tag)
+                        , ScoreFunctionBuilders.weightFactorFunction(5)));
+            }
+
+            FunctionScoreQueryBuilder.FilterFunctionBuilder[] builders = new FunctionScoreQueryBuilder.FilterFunctionBuilder[filterFunctionBuilders.size()];
+            filterFunctionBuilders.toArray(builders);
+            // 根据条件查询，并按加法做匹配相关度
+            FunctionScoreQueryBuilder functionScoreQueryBuilder = QueryBuilders.functionScoreQuery(builders)
+                    .scoreMode(FunctionScoreQuery.ScoreMode.SUM)
+                    .setMinScore(2);
+            // 用于过滤掉相同的文章
+            BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+            boolQueryBuilder.mustNot(QueryBuilders.termQuery("id", id));
+            // 构建查询条件
+            NativeSearchQuery queryBuilder = new NativeSearchQueryBuilder()
+                    .withQuery(functionScoreQueryBuilder)
+                    .withFilter(boolQueryBuilder)
+                    .withPageable(pageRequest)
+                    .build();
+            log.info("【recommend - DSL - query:{}】", queryBuilder.getQuery());
+            // TODO ES索引存在问题，当前查询和‘searchFromEs’不一致。 IndexCoordinates.of("post_v1")
+            SearchHits<PostEsDTO> searchHits = elasticsearchRestTemplate.search(queryBuilder, PostEsDTO.class);
+            log.info("【searchHits:{}】", searchHits);
+            return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
+        }
+        return null;
     }
 
     @Override
@@ -124,6 +176,7 @@ public class PostServiceImpl implements PostService {
         // 构造查询
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder)
                 .withPageable(pageRequest).withSort(sortBuilder).build();
+        log.info("【searchFromEs - DSL：{}】", searchQuery.getQuery());
         // 执行查询
         SearchHits<PostEsDTO> searchHits = elasticsearchRestTemplate.search(searchQuery, PostEsDTO.class);
 
