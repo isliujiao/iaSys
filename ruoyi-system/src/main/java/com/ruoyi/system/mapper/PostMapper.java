@@ -29,6 +29,8 @@ public interface PostMapper {
      * 返回电子数前5的文章
      */
     List<SearchVO> selectTopFive();
+
+    List<Post> selectAllById(Long id);
 }
 
 

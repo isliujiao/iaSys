@@ -94,6 +94,7 @@ spring:
   elasticsearch:
     rest:
       uris: 118.178.231.233:9200
+#      uris: 127.0.0.1:9200
       connection-timeout: 2s
   #RabbitMQ
   rabbitmq:

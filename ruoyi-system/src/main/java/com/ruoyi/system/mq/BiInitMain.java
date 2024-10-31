@@ -27,4 +27,10 @@ public class BiInitMain {
         }
 
     }
+
+    public static void fail(String message) {
+        throw new ApiException(message);
+    }
+
+
 }

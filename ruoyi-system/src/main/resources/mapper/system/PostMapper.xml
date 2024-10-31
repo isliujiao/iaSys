@@ -61,4 +61,10 @@
         limit 5
     </select>
 
+    <select id="selectAllById" resultType="com.ruoyi.common.core.domain.entity.Post" resultMap="BaseResultMap">
+        <include refid="selectPost"/>
+        where p.isDelete = '0'
+        and p.id = #{id}
+    </select>
+
 </mapper>
