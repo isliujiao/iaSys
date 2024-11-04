@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 帖子服务
  */
-public interface PostService{
+public interface PostService {
 
 
     /**
@@ -23,6 +23,7 @@ public interface PostService{
 
     /**
      * 获取帖子信息插入数据库
+     *
      * @param postList
      * @return
      */
@@ -30,6 +31,7 @@ public interface PostService{
 
     /**
      * 获取点赞前5的文章
+     *
      * @return
      */
     List<SearchVO> searchTopFive();
@@ -37,12 +39,32 @@ public interface PostService{
     /**
      * 根据文章ID推荐相关文章
      *
-     * @param id 文章ID
-     * @param pageNum 当前页
+     * @param id       文章ID
+     * @param pageNum  当前页
      * @param pageSize 每页大小
      * @return
      */
     List<PostEsDTO> recommend(Long id, Integer pageNum, Integer pageSize);
+
+    /**
+     * ES导入数据库所有文章
+     *
+     * @return
+     */
+    int importAllList();
+
+    /**
+     * 批量删除
+     */
+    void deleteBatchByIds(List<Long> ids);
+
+    /**
+     * 创建ES索引
+     *
+     * @param ids
+     * @return
+     */
+    List<PostEsDTO> createBatchByIds(List<Long> ids);
 
     /**
      * 校验

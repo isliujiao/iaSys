@@ -16,5 +16,4 @@ public interface SearchService {
 
     SearchVO searchAll(@RequestBody SearchRequest searchRequest, HttpServletRequest request);
 
-    List<SearchVO> searchTopFive();
 }

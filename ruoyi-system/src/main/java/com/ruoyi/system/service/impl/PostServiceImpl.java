@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import cn.hutool.core.collection.ListUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ruoyi.common.constant.CommonConstant;
@@ -8,9 +9,11 @@ import com.ruoyi.system.domain.dto.post.PostEsDTO;
 import com.ruoyi.system.domain.dto.post.PostQueryRequest;
 import com.ruoyi.system.domain.vo.SearchVO;
 import com.ruoyi.system.mapper.PostMapper;
+import com.ruoyi.system.repository.PostEsRepository;
 import com.ruoyi.system.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -20,6 +23,7 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -31,6 +35,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,6 +53,9 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
+    @Autowired
+    private PostEsRepository postEsRepository;
+
     private final static Gson GSON = new Gson();
 
     @Override
@@ -62,7 +70,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostEsDTO> recommend(Long id, Integer pageNum, Integer pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+        PageRequest pageRequest = PageRequest.of(pageNum - 1, pageSize);
         List<Post> postList = postMapper.selectAllById(id);
         if (CollectionUtils.isNotEmpty(postList)) {
             Post post = postList.get(0);
@@ -96,12 +104,12 @@ public class PostServiceImpl implements PostService {
                     .withPageable(pageRequest)
                     .build();
             log.info("【recommend - DSL - query:{}】", queryBuilder.getQuery());
-            // TODO ES索引存在问题，当前查询和‘searchFromEs’不一致。 IndexCoordinates.of("post_v1")
+            // ES索引存在问题，当前查询和‘searchFromEs’不一致。 IndexCoordinates.of("post_v1")
             SearchHits<PostEsDTO> searchHits = elasticsearchRestTemplate.search(queryBuilder, PostEsDTO.class);
             log.info("【searchHits:{}】", searchHits);
             return searchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
         }
-        return null;
+        return ListUtil.empty();
     }
 
     @Override
@@ -201,6 +209,46 @@ public class PostServiceImpl implements PostService {
             }
         }
         return resourceList;
+    }
+
+    @Override
+    public int importAllList() {
+        List<PostEsDTO> postList = postMapper.selectAllById(null).stream().map(info -> {
+            PostEsDTO postEsDTO = new PostEsDTO();
+            BeanUtils.copyProperties(info, postEsDTO);
+            return postEsDTO;
+        }).collect(Collectors.toList());
+        Iterable<PostEsDTO> esDTOIterable = postEsRepository.saveAll(postList);
+        Iterator<PostEsDTO> iterator = esDTOIterable.iterator();
+        int result = 0;
+        while (iterator.hasNext()) {
+            result++;
+            iterator.next();
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteBatchByIds(List<Long> ids) {
+        if (!org.springframework.util.CollectionUtils.isEmpty(ids)) {
+            List<PostEsDTO> esProductList = new ArrayList<>();
+            for (Long id : ids) {
+                PostEsDTO postEsDTO = new PostEsDTO();
+                postEsDTO.setId(id);
+                esProductList.add(postEsDTO);
+            }
+            postEsRepository.deleteAll(esProductList);
+        }
+    }
+
+    @Override
+    public List<PostEsDTO> createBatchByIds(List<Long> ids) {
+        List<PostEsDTO> postList = postMapper.selectByIds(ids).stream().map(info -> {
+            PostEsDTO postEsDTO = new PostEsDTO();
+            BeanUtils.copyProperties(info, postEsDTO);
+            return postEsDTO;
+        }).collect(Collectors.toList());
+        return postList;
     }
 }
 
