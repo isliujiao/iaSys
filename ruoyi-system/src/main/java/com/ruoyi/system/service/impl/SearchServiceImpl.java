@@ -97,13 +97,4 @@ public class SearchServiceImpl implements SearchService {
             return searchVO;
         }
     }
-
-    /**
-     * 查询点赞前5的文章
-     * @return
-     */
-    @Override
-    public List<SearchVO> searchTopFive() {
-        return postService.searchTopFive();
-    }
 }

@@ -221,8 +221,7 @@ export default {
       return new Promise((resolve, reject) => {
 
         // WS连接
-        this.socket = new WebSocket('ws://118.178.231.233:9044/ws');
-        // this.socket = new WebSocket('ws://localhost:9044/ws');
+        this.socket = new WebSocket('ws://localhost:9044/ws');
 
         // 建立消息触发
         this.socket.onopen = () => {
