@@ -49,4 +49,9 @@ public interface ChartService {
      */
     List<Chart> listMyChartByPage(ChartQueryRequest chartQueryRequest, HttpServletRequest request);
 
+    /**
+     * 根据图表 id 删除图表信息
+     * @param chartId
+     */
+    void deleteById(Long chartId);
 }

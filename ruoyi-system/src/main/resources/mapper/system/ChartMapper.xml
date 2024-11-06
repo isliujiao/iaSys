@@ -41,6 +41,12 @@
         <include refid="selectChart"/>
         where c.isDelete = '0'
         and c.userId = #{userId}
+        <if test="chartName != null and chartName != ''">
+            AND chartName like concat('%', #{chartName}, '%')
+        </if>
+        <if test="chartType != null and chartType != ''">
+            AND chartType like concat('%', #{chartType}, '%')
+        </if>
         order by c.createTime desc
     </select>
 
@@ -85,4 +91,8 @@
         </set>
         where id = #{id}
     </update>
+
+    <delete id="deleteById" parameterType="Long">
+        update chart set isDelete = '1' where id = #{chartId}
+    </delete>
 </mapper>

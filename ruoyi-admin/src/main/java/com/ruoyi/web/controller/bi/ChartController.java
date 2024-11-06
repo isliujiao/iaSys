@@ -38,6 +38,17 @@ public class ChartController extends BaseController {
         return getDataTable(chartService.listMyChartByPage(chartQueryRequest,request));
     }
 
+    /**
+     * 根据图标id删除图表数据
+     *
+     * @return
+     */
+    @GetMapping("/my/list/deleteById/{chartId}")
+    public AjaxResult deleteById(@PathVariable Long chartId) {
+        chartService.deleteById(chartId);
+        return success();
+    }
+
 
     /**
      * 使用AI生产图表数据

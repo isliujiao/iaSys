@@ -40,3 +40,15 @@ export function listMyChartByPage(searchParams) {
     params: searchParams,
   })
 }
+
+/**
+ * 根据ID删除图表
+ * @param {*} searchParams 
+ * @returns 
+ */
+export function deleteChartById(chartId) {
+  return request({
+    url: '/chart/my/list/deleteById/' + chartId,
+    method: 'get'
+  })
+}

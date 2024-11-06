@@ -2,7 +2,7 @@
   <div class="my-chart-page">
     <!-- Search input -->
     <div>
-      <el-input placeholder="请输入图表名称" v-model="searchValue" suffix-icon="el-icon-search" @search="handleSearch"
+      <el-input placeholder="请输入图表名称" v-model="searchParams.chartName" suffix-icon="el-icon-search" @search="handleSearch"
         :loading="loading">
         <el-button slot="append" icon="el-icon-search" @click="getList">搜索</el-button>
       </el-input>
@@ -12,6 +12,7 @@
     <el-row :gutter="24" class="grid-charts">
       <el-col :span="colSpan" class="custom-chart-col" v-for="(chart, index) in chartList" :key="chart.id">
         <el-card class="chart-card" :body-style="{ padding: '20px' }">
+          <el-button class="close-button" type="danger" icon="el-icon-delete" @click="handleDelete(chart.id, index)"></el-button>
           <div>
             <!-- <el-avatar :src="currentUser && currentUser.userAvatar"></el-avatar> -->
             <h2>{{ chart.chartName }}</h2>
@@ -36,7 +37,7 @@
 </template>
 
 <script>
-import { listMyChartByPage } from '@/api/bi/bi.js';
+import { listMyChartByPage,deleteChartById } from '@/api/bi/bi.js';
 import { mapState } from 'vuex';
 import * as echarts from 'echarts'; // 导入 ECharts 库
 
@@ -48,7 +49,6 @@ export default {
         pageSize: 4,
         chartName: '',
       },
-      searchValue: '',
       chartList: [],
       echartsInstances: [],
       total: 0,
@@ -131,6 +131,49 @@ export default {
         this.getList();
       });
     },
+
+    /**
+     * 删除图表
+     * @param chartId
+     * @param index
+     */
+    handleDelete(chartId, index) {
+      // 确认删除
+      this.$confirm('确定删除该图表吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+         // 调用后端删除接口
+         console.log(chartId);
+        deleteChartById(chartId).then(response => {
+          console.log("响应==>", response);
+          if (response.code === 200) {
+            // 从 chartList 中移除对应的图表
+            this.chartList.splice(index, 1);
+            // 销毁对应的 ECharts 实例
+            this.echartsInstances[index].dispose();
+            this.echartsInstances.splice(index, 1);
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.getList();
+          } else {
+            this.$message.error('删除失败');
+          }
+        }).catch(error => {
+          this.$message.error('删除失败，' + error.message);
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+    },
+
+
     watch: {
       'searchParams.pageNum': {
         handler(newValue, oldValue) {
@@ -173,8 +216,17 @@ export default {
 <style>
 .chart-card {
   margin-bottom: 20px;
+  position: relative; /* 添加相对定位 */
 }
-
+.close-button {
+  position: absolute; /* 添加绝对定位 */
+  top: 10px; /* 调整到右上角 */
+  right: 10px; /* 调整到右上角 */
+  z-index: 10; /* 确保按钮在卡片内容之上 */
+  transform: scale(0.9); /* 调整缩放大小 */
+  opacity: 0.7; /* 调整透明度 */
+  border-radius: 30px; /* 将边框改为圆角 */
+}
 .pagination {
   margin-top: 20px;
   text-align: right;

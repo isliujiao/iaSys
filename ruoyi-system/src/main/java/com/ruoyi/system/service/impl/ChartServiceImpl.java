@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
 import com.ruoyi.common.config.RedisLimiterManager;
 import com.ruoyi.common.config.YcmAiManager;
 import com.ruoyi.common.core.domain.ErrorCode;
@@ -331,6 +332,12 @@ public class ChartServiceImpl implements ChartService {
         // 限制爬虫
         ThrowUtils.throwIf(chartQueryRequest.getPageSize() > 20, ErrorCode.PARAMS_ERROR);
         return chartMapper.listMyChartByPage(chartQueryRequest);
+    }
+
+    @Override
+    public void deleteById(Long chartId) {
+        Assert.isTrue(chartId != null, "chartId不能为空");
+        chartMapper.deleteById(chartId);
     }
 
 

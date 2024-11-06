@@ -35,6 +35,7 @@ public interface ChartMapper {
      */
     List<Chart> listMyChartByPage(ChartQueryRequest chartQueryRequest);
 
+    void deleteById(Long chartId);
 }
 
 
