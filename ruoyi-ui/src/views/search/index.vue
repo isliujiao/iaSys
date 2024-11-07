@@ -8,12 +8,12 @@
 
     <el-tabs v-model="activeTab" @tab-click="onTabChange">
       <el-tab-pane label="文章" name="post">
-        <PostList :post-list="postList" />
+        <PostList :post-list="postList"/>
       </el-tab-pane>
 
       <el-tab-pane label="图片" name="picture">
         <div v-if="searchText != ''">
-          <PictureList :picture-list="pictureList" />
+          <PictureList :picture-list="pictureList"/>
         </div>
         <div v-else>
           请输入搜索内容……
@@ -36,7 +36,7 @@
 import PostList from "@/views/search/components/PostList.vue";
 import PictureList from "@/views/search/components/PictureList.vue";
 import UserList from "@/views/search/components/UserList.vue";
-import { searchAll } from "@/api/search/search.js";
+import {searchAll} from "@/api/search/search.js";
 
 export default {
 
@@ -56,7 +56,10 @@ export default {
       // 可以添加其他需要的数据
     };
   },
-
+  created() {
+    // 在组件创建时获取数据
+    this.fetchData();
+  },
   methods: {
     onSearch() {
       this.fetchData();
@@ -64,7 +67,9 @@ export default {
     onTabChange(tab) {
       // 在标签页切换时触发的方法
       this.activeTab = tab.name; // 更新活动标签页为点击的标签页的名称
-      this.fetchData()
+      if(tab.name == 'post' || tab.name == 'picture'){
+        this.fetchData()
+      }
     },
     fetchData() {
       const queryParams = {
@@ -73,17 +78,15 @@ export default {
         pageSize: 10,
         pageNum: 1,
       };
-      if(this.searchText != ''){
-        searchAll(queryParams).then(response => {
-          if (queryParams.type === "post") {
-            this.postList = response.data.dataList.rows;
-          } else if (queryParams.type === "picture") {
-            this.pictureList = response.data.dataList.rows;
-          } else if (queryParams.type === "user") {
-            this.userList = response.data.dataList.rows;
-          }
-        });
-      }
+      searchAll(queryParams).then(response => {
+        if (queryParams.type === "post") {
+          this.postList = response.data.dataList.rows;
+        } else if (queryParams.type === "picture") {
+          this.pictureList = response.data.dataList.rows;
+        } else if (queryParams.type === "user") {
+          this.userList = response.data.dataList.rows;
+        }
+      });
     },
   }
 };

@@ -18,6 +18,7 @@
       <div v-for="(post, index) in postList" :key="index" class="article" @click="showArticleDetails(post)">
         <h3 class="article-title">{{ index + 1 }}、{{ post.title }}</h3>
         <div class="article-content">{{ truncatedContent(post) }}</div>
+        <div class="article-icon">👍</div>
       </div>
     </div>
 
@@ -84,6 +85,7 @@ export default {
         }
       }
     },
+    // 展示详情
     showArticleDetails(article) {
       this.selectedArticle = article;
       this.isModalVisible = true;

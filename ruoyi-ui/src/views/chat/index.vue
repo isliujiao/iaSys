@@ -9,7 +9,7 @@
             - 聊天室 -
           </div>
           <div class="chat-messages" ref="messageContainer"
-            style="height: 400px; overflow: auto; border-top: 1px solid #ccc;">
+               style="height: 400px; overflow: auto; border-top: 1px solid #ccc;">
             <div v-for="(message, index) in messages" :key="index" class="message">
               <!-- 消息类型为1001，系统提示消息 -->
               <div v-if="message.type === 1001">
@@ -69,7 +69,7 @@
                 @success="onImageSuccess" @fail="onImageFail">
                 <i class="el-icon-picture-outline"></i>
               </file-upload> -->
-              <i class="el-icon-picture-outline" ></i>
+              <i class="el-icon-picture-outline"></i>
             </div>
             <div title="发送文件" @click="sendFileFai()">
               <!-- <file-upload :action="'/file/upload'" :maxSize="10 * 1024 * 1024" @before="onFileBefore"
@@ -87,8 +87,8 @@
           <!--输入框部份-->
           <div class="chat-input" style="height: 120px; right: 50px;left: 100px;">
             <div class="input-msg" ref="editBox" :content="this.newMessage" contenteditable="true" id="customInput"
-              placeholder="在此输入信息……" v-html="newMessage" @input="onEditorInput" @blur="onEditBoxBlur"
-              @keydown.down="onKeyDown" @keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter"></div>
+                 placeholder="在此输入信息……" v-html="newMessage" @input="onEditorInput" @blur="onEditBoxBlur"
+                 @keydown.down="onKeyDown" @keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter"></div>
             <div style="text-align: right; padding-right: 10px;">
               <el-button type="primary" size="small" @click="sendGroupMessage">发送</el-button>
             </div>
@@ -106,7 +106,7 @@
           </div>
           <div style="height: 300px; overflow: auto;">
             <div v-for="(user, index) in onlineUserList" :key="index" class="online-user">
-              <span style="color: green;">🟢</span>{{ user.userName }}
+              <span style="color: green;">🟢</span>{{ user.userName }} - {{ truncatedContent(user.tokenId) }}
             </div>
           </div>
         </el-card>
@@ -116,10 +116,10 @@
 </template>
 
 <script>
-import { getUserProfile } from "@/api/system/user";
-import { closeUserConnect } from "@/api/chat/chat.js";
-import { getToken } from "@/utils/auth";
-import { list } from "@/api/monitor/online";
+import {getUserProfile} from "@/api/system/user";
+import {closeUserConnect} from "@/api/chat/chat.js";
+import {getToken} from "@/utils/auth";
+import {list} from "@/api/monitor/online";
 import Emotion from "@/components/Chat/Emotion.vue";
 
 export default {
@@ -160,6 +160,10 @@ export default {
     window.addEventListener('beforeunload', this.closeWebSocket);
   },
   methods: {
+    truncatedContent(tokenId) {
+      // 截取前100个字符
+      return tokenId.slice(0, 5);
+    },
     getOnlineUserList() {
       this.loading = true;
       list(this.queryParams).then(response => {
@@ -228,7 +232,7 @@ export default {
           this.connected = true;
           // 在连接建立时发送鉴权信息
           const authHeader = getToken(); // 替换成实际的鉴权信息
-          this.socket.send(JSON.stringify({ type: 'Authorization', token: authHeader }));
+          this.socket.send(JSON.stringify({type: 'Authorization', token: authHeader}));
           console.log('WebSocket 连接已建立');
           resolve();
         };
@@ -392,19 +396,19 @@ export default {
         this.newMessage = ''; // 同步更新 Vue 实例的数据
       });
     },
-    sendImg(){
+    sendImg() {
       alert("发送图片暂未开放，敬请期待……")
     },
-    sendFileFai(){
+    sendFileFai() {
       alert("发送文件暂未开放，敬请期待……")
     },
-    sendVoice(){
+    sendVoice() {
       alert("发起语音暂未开放，敬请期待……")
     },
-    sendVideo(){
+    sendVideo() {
       alert("发起视频暂未开放，敬请期待……")
     },
-    showChatRecord(){
+    showChatRecord() {
       alert("查看聊天记录暂未开放，敬请期待……")
     },
   },
@@ -432,7 +436,7 @@ export default {
   box-sizing: border-box;
   border: #dddddd solid 1px;
 
-  >div {
+  > div {
     margin-left: 10px;
     font-size: 22px;
     cursor: pointer;

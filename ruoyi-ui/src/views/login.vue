@@ -174,7 +174,7 @@ export default {
 .login-form {
   border-radius: 6px;
   background: #ffffff;
-  width: 400px;
+  width: 30%;
   padding: 25px 25px 5px 25px;
   .el-input {
     height: 38px;
