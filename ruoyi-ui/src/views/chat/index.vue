@@ -189,12 +189,12 @@ export default {
     },
     getOnlineUserList() {
       this.loading = true;
-      list(this.queryParams).then(response => {
-        console.log("在线用户返回 --->>", response)
-        this.onlineUserList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
+      // list(this.queryParams).then(response => {
+      //   console.log("在线用户返回 --->>", response)
+      //   this.onlineUserList = response.rows;
+      //   this.total = response.total;
+      //   this.loading = false;
+      // });
     },
     // 加入群聊连接
     joinGroup() {
