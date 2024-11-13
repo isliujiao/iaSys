@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class ChatNettyServer {
 
     @Autowired
@@ -52,7 +54,6 @@ public class ChatNettyServer {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             //【5】自定义处理逻辑
-                            //心跳
                             ch.pipeline().addLast(new IdleStateHandler(5, 5, 0, TimeUnit.SECONDS));
                             ch.pipeline().addLast(new ImHeartBeatHandler());
                             //websocket协议本身是基于http协议的，所以这边也要使用http解编码器
@@ -61,14 +62,14 @@ public class ChatNettyServer {
                             ch.pipeline().addLast(new ChunkedWriteHandler());
                             ch.pipeline().addLast(new HttpObjectAggregator(8192));
                             ch.pipeline().addLast(new WebSocketServerProtocolHandler("/ws", "WebSocket", true, 65536 * 10));
-                            ch.pipeline().addLast(webSocketHandler);//自定义消息处理类
-                            //心跳
-//                            ch.pipeline().addLast(new HeartBeatHandler());
+                            // 自定义消息处理类，处理业务逻辑
+                            ch.pipeline().addLast(webSocketHandler);
+                            // ch.pipeline().addLast(new NettyWebSocketServerHandler());
                         }
                     });
             //【6】阻塞等待直到服务器Channel关闭(closeFuture()方法获取Channel
             ChannelFuture cf = sb.bind().sync(); // 服务器异步创建绑定
-            System.out.println(ChatNettyServer.class + "已启动，正在监听： " + cf.channel().localAddress());
+            log.info(ChatNettyServer.class + "已启动，正在监听： {}", cf.channel().localAddress());
             cf.channel().closeFuture().sync(); // 关闭服务器通道
         } finally {
             //【7】优雅释放相关线程组资源

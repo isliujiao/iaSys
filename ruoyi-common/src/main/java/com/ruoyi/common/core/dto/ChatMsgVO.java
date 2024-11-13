@@ -1,6 +1,7 @@
 package com.ruoyi.common.core.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Data
 public class ChatMsgVO {
 
@@ -49,4 +51,14 @@ public class ChatMsgVO {
      * 发送的消息
      */
     private String sendMsg;
+
+    /**
+     * 房间ID
+     */
+    private Long roomId;
+
+    /**
+     * 发送人ID
+     */
+    private Long fromUid;
 }

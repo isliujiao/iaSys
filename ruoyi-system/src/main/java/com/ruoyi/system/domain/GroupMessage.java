@@ -39,6 +39,7 @@ public class GroupMessage {
      * @用户列表
      */
     private String atUserIds;
+
     /**
      * 发送内容
      */

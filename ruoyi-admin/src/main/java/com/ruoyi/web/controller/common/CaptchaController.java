@@ -7,6 +7,9 @@ import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.web.controller.tool.TestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,8 @@ import com.ruoyi.system.service.ISysConfigService;
  */
 @RestController
 public class CaptchaController {
+    private final static Logger LOGGER = LoggerFactory.getLogger(CaptchaController.class);
+
     @Resource(name = "captchaProducer")
     private Producer captchaProducer;
 

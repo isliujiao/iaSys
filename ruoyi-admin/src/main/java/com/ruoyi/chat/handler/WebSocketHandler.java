@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSON;
 import com.ruoyi.common.core.dto.ChatMsgDTO;
 import com.ruoyi.common.core.dto.ChatMsgVO;
 import com.ruoyi.common.enums.chat.ChatMsgType;
-import com.ruoyi.common.enums.chat.ChatResType;
 import com.ruoyi.common.exception.UtilException;
 import com.ruoyi.common.utils.StringUtils;
 import io.netty.channel.ChannelHandler;
@@ -47,8 +46,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
 //        ctx.writeAndFlush(new TextWebSocketFrame("服务端收到消息--->" + frame));
         log.info("消息内容 -- >{}", frame.text());
-        //保存映射关系，在建立链接时，要把状态信息存起来，首先要定义一个模型(或者说指令)，即 Command
-        //1、首先要解析frame，我们可以定义一种序列化的格式，比如可以前后端约定好用json的方式来处理消息
+        // 保存映射关系，在建立链接时，要把状态信息存起来，首先要定义一个模型(或者说指令)，即 Command
+        // 首先要解析frame，我们可以定义一种序列化的格式，比如可以前后端约定好用json的方式来处理消息
         try {
             ChatMsgDTO chatMsg = JSON.parseObject(frame.text(), ChatMsgDTO.class);
             if (StringUtils.isEmpty(chatMsg.getToken())) {
@@ -59,13 +58,18 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
                 case CONNECTION:
                     connectionHandler.execute(ctx, chatMsg);
                     break;
-                // 建立群聊连接事件 ---
+                // 建立群聊连接事件
                 case JOIN_GROUP:
                     joinGroupHandler.execute(ctx, frame);
                     break;
                 // 聊天事件（私聊、群聊、请求GPT）
                 case PRIVATE_CHAT:
+                    chatHandler.execute(ctx, frame);
+                    break;
                 case GROUP_CHAT:
+                    chatHandler.execute(ctx, frame);
+                    break;
+                // 建立gpt连接事件
                 case ASK_GPT:
                     chatHandler.execute(ctx, frame);
                     break;
@@ -74,10 +78,12 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
                     throw new UtilException("暂不支持此消息");
             }
         } catch (Exception e) {
-            ChatMsgVO chatMsgVO = new ChatMsgVO();
-            chatMsgVO.setType(ChatResType.WARNING.getCode());
-            chatMsgVO.setContent(e.getMessage());
-            ctx.channel().writeAndFlush(chatMsgVO);
+            ctx.channel().writeAndFlush(
+                    ChatMsgVO.builder()
+                            .type(ChatMsgType.ERROR.getCode())
+                            .content(e.getMessage())
+                            .build()
+            );
         }
     }
 }

@@ -3,7 +3,7 @@ package com.ruoyi.web.controller.chat;
 
 import cn.hutool.core.util.StrUtil;
 import com.ruoyi.common.enums.chat.XfxhTokenEnum;
-import com.ruoyi.common.listener.XfXhWebSocketListener;
+import com.ruoyi.system.listener.XfXhWebSocketListener;
 import com.ruoyi.common.config.XfxhConfig;
 import com.ruoyi.common.core.dto.XfxhMsgDTO;
 import com.ruoyi.system.service.XfXhStreamServer;

@@ -1,8 +1,8 @@
 <template>
-  <div class="ml20" style="padding: 10px; margin-bottom: 50px;">
+  <div class="ml20" >
     <el-row>
       <!-- 聊天室 -->
-      <el-col class="fl" :span="14" style="margin-bottom: 12px;">
+      <el-col class="chat-container" :span="14" style="margin-bottom: 12px;">
         <div style="width: 800px; margin: 0 auto; background-color: white;border-radius: 5px;
             box-shadow: 0 0 10px #ccc">
           <div style="text-align: center; line-height: 50px; font-size: 140%;">
@@ -11,20 +11,20 @@
           <div class="chat-messages" ref="messageContainer"
                style="height: 400px; overflow: auto; border-top: 1px solid #ccc;">
             <div v-for="(message, index) in messages" :key="index" class="message">
-              <!-- 消息类型为1001，系统提示消息 -->
-              <div v-if="message.type === 1001">
+              <!-- 建立群聊连接事件 - 10002 -->
+              <div v-if="message.type === 10002" @methods="succeedJoinGroup(message.content)">
                 <div class="message-sender system-message">
                   系统消息 - {{ message.sendTime }}
                 </div>
                 <div v-html="$emo.transform(message.content)">
                 </div>
               </div>
-              <!-- 消息类型为2001，普通消息 -->
-              <div v-else-if="message.type === 2001">
+              <!-- 群组聊天消息 - 20002 -->
+              <div v-else-if="message.type === 20002">
                 <!-- 自己发送的消息 -->
-                <div v-if="message.sender === nickName">
+                <div v-if="message.fromUid === fromUid">
                   <div class="sent-message">
-                    {{ message.sender }} - {{ message.sendTime }}
+                    {{ message.nickName }} - {{ message.sendTime }}
                   </div>
                   <div class="selfMsgContent" contenteditable="true" v-html="$emo.transform(message.content)">
                   </div>
@@ -34,7 +34,7 @@
                 <div v-else>
                   <div>
                     <div class="received-message">
-                      {{ message.sender }} - {{ message.sendTime }}
+                      {{ message.nickName }} - {{ message.sendTime }}
                     </div>
                     <div class="orderMsgContent" contenteditable="true" v-html="$emo.transform(message.content)">
                     </div>
@@ -42,8 +42,8 @@
                 </div>
               </div>
 
-              <!-- GPT助手发送消息 -->
-              <div v-if="message.type === 3001">
+              <!-- GPT助手发送消息 30001 -->
+              <div v-if="message.type === 30001">
                 <div class="received-message">
                   智能小助理 - {{ message.sendTime }}
                 </div>
@@ -99,7 +99,7 @@
       </el-col>
 
       <!-- 在线用户 -->
-      <el-col :span="6" :offset="2">
+      <!-- <el-col :span="6" :offset="2">
         <el-card>
           <div slot="header" style="text-align: center; font-size: 12px;">
             在线用户
@@ -110,14 +110,14 @@
             </div>
           </div>
         </el-card>
-      </el-col>
+      </el-col> -->
     </el-row>
   </div>
 </template>
 
 <script>
 import {getUserProfile} from "@/api/system/user";
-import {closeUserConnect} from "@/api/chat/chat.js";
+import {closeUserConnect, getMessageNoticeList} from "@/api/chat/chat.js";
 import {getToken} from "@/utils/auth";
 import {list} from "@/api/monitor/online";
 import Emotion from "@/components/Chat/Emotion.vue";
@@ -138,6 +138,7 @@ export default {
       connected: false, // 表示连接状态标志
       socket: null, // WebSocket 实例
       nickName: '',
+      fromUid: '',
       msg: '',
       iaAssistantSwitch: false,
       focusNode: null, // 缓存光标所在节点
@@ -145,12 +146,16 @@ export default {
       zhLock: false, // 解决中文输入法触发英文的情况
     };
   },
+  created() {
+    this.getMsgList();
+  },
   mounted() {
     // 获取在线用户列表
-    this.getOnlineUserList();
+    // this.getOnlineUserList();
     getUserProfile().then(response => {
-      console.log("response.data --->>", response.data)
+      console.log("getUserProfile - response.data --->>", response.data)
       this.nickName = response.data.nickName
+      this.fromUid = response.data.userId
     });
     this.initializeWebSocket().then(() => {
       // WebSocket 初始化完成后执行的逻辑
@@ -163,6 +168,24 @@ export default {
     truncatedContent(tokenId) {
       // 截取前100个字符
       return tokenId.slice(0, 5);
+    },
+    /**
+     * 获取消息列表
+     */
+    getMsgList() {
+      getMessageNoticeList(this.queryParams).then(response => {
+        console.log("返回的消息列表", response);
+        this.messages = response.rows;
+        console.log("this.messages", this.messages);
+      })
+    },
+    succeedJoinGroup(content) {
+      this.$notify({
+        title: '成功',
+        message: "系统消息：" + content,
+        type: 'success',
+        offset: 80
+      });
     },
     getOnlineUserList() {
       this.loading = true;
@@ -239,23 +262,28 @@ export default {
 
         // 接收消息触发
         this.socket.onmessage = (event) => {
-          console.log("返回：", event)
+          console.log("event返回：", event)
           // 接收到消息时触发
           const message = JSON.parse(event.data);
           const formattedMessage = {
             type: message.type,
-            sender: message.nickName,
+            nickName: message.nickName,
             sendTime: message.sendTime,
             content: message.content,
             sendMsg: message.sendMsg,
+            fromUid: message.fromUid
           };
-          if (message.type == '1002') {
+          console.log("接收message返回：", message)
+          if (message.type === 90001) { // 断开连接
             alert(message.content);
             this.socket.onclose();
+          } else if (message.type === 10000) { // 系统消息
+            console.log("--------------->系统消息")
+            this.succeedJoinGroup(message.content);
           } else {
             // 将返回的消息写入消息列表
-            if (formattedMessage.type === 3001) {
-              formattedMessage.content = '@' + formattedMessage.sender + ', ' + formattedMessage.content;
+            if (formattedMessage.type === 30001) {
+              formattedMessage.content = '@' + formattedMessage.nickName + ', ' + formattedMessage.content;
             }
             this.messages.push(formattedMessage);
           }
@@ -421,11 +449,21 @@ export default {
 </script>
 
 <style lang="scss">
-.fl {
+.el-row {
   display: flex;
-
 }
-
+.el-col:first-child {
+  width: 200px;
+}
+.el-col.chat-container {
+  flex: 1;
+  opacity: 0.93; /* 设置不透明度为0.5 */
+}
+.ml20{
+  padding: 3px;
+  background-image: url("../../assets/images/login-background1.jpg");
+  background-size: cover;
+}
 .chat-tool-bar {
 
   display: flex;
@@ -471,14 +509,6 @@ export default {
 .system-message {
   margin-bottom: 8px;
   color: blue;
-}
-
-/* 为聊天容器、消息、输入框等添加样式 */
-.chat-container {
-  width: 400px;
-  margin: 20px auto;
-  border: 1px solid #ccc;
-  padding: 10px;
 }
 
 .chat-messages {

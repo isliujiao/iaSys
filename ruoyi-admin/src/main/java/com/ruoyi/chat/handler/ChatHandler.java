@@ -1,28 +1,30 @@
 package com.ruoyi.chat.handler;
 
 import com.alibaba.fastjson2.JSON;
-
 import com.ruoyi.chat.ChatNettyServer;
 import com.ruoyi.common.config.XfxhConfig;
-import com.ruoyi.common.core.dto.ChatMsgVO;
-import com.ruoyi.common.core.dto.ChatMsgDTO;
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.core.dto.ChatMsgDTO;
+import com.ruoyi.common.core.dto.ChatMsgVO;
+import com.ruoyi.common.core.dto.GroupMessageDTO;
 import com.ruoyi.common.core.dto.XfxhMsgDTO;
 import com.ruoyi.common.enums.chat.ChatMsgType;
-import com.ruoyi.common.enums.chat.ChatResType;
 import com.ruoyi.common.enums.chat.XfxhTokenEnum;
-import com.ruoyi.common.listener.XfXhWebSocketListener;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.TokenService;
+import com.ruoyi.system.event.UserGroupMessageEvent;
+import com.ruoyi.system.listener.XfXhWebSocketListener;
 import com.ruoyi.system.service.XfXhStreamServer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.internal.StringUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ import java.util.UUID;
  */
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class ChatHandler {
 
     @Autowired
@@ -47,7 +50,7 @@ public class ChatHandler {
 
     @Autowired
     private XfxhConfig xfXhConfig;
-
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public void execute(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
         try {
@@ -57,12 +60,19 @@ public class ChatHandler {
             // todo 目前从redis中获取信息，【改进一：如果没必要前端直接传；改进二：从Security中获取(未通)】
             LoginUser loginUser = tokenService.getLoginUser(chatMsg.getToken());
 
-            if (ChatMsgType.match(chatMsg.getMsgType()) == ChatMsgType.PRIVATE_CHAT) {
+            if (ChatMsgType.PRIVATE_CHAT.equals(ChatMsgType.match(chatMsg.getMsgType()))) {
                 // 发送私聊消息
                 privateChat(ctx, chatMsg);
             } else if (ChatMsgType.match(chatMsg.getMsgType()) == ChatMsgType.GROUP_CHAT) {
                 // 发送群聊消息
                 groupChat(chatMsg, loginUser);
+                GroupMessageDTO groupMessageDTO = GroupMessageDTO.builder()
+                        .content(chatMsg.getContent())
+                        .fromUserId(loginUser.getUserId())
+                        .nickName(loginUser.getUser().getNickName())
+                        .type(chatMsg.getMsgType())
+                        .groupId(0L).build();
+                applicationEventPublisher.publishEvent(new UserGroupMessageEvent(this, groupMessageDTO));
             } else if (ChatMsgType.match(chatMsg.getMsgType()) == ChatMsgType.ASK_GPT) {
                 // 向GPT发送消息
                 askGpt(ctx, chatMsg.getContent(), loginUser);
@@ -83,20 +93,23 @@ public class ChatHandler {
      */
     private void groupChat(ChatMsgDTO chatMsg, LoginUser loginUser) {
         //群聊消息
-        ChatMsgVO chatMsgVO = new ChatMsgVO();
-        chatMsgVO.setType(ChatResType.CHAT_MSG.getCode());
-        chatMsgVO.setNickName(loginUser.getUser().getNickName());
-        chatMsgVO.setSendTime(DateUtils.getTime());
-        chatMsgVO.setAvatar(loginUser.getUser().getAvatar());
-        chatMsgVO.setContent(chatMsg.getContent());
-        nettyServer.GROUP.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(chatMsgVO)));
+        nettyServer.GROUP.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(
+                ChatMsgVO.builder()
+                        .fromUid(loginUser.getUserId())
+                        .type(ChatMsgType.GROUP_CHAT.getCode())
+                        .nickName(loginUser.getUser().getNickName())
+                        .sendTime(DateUtils.getTime())
+                        .avatar(loginUser.getUser().getAvatar())
+                        .content(chatMsg.getContent())
+                        .build()
+        )));
     }
 
     /**
      * 向xfxh请求消息
      *
-     * @param ctx 通道处理程序
-     * @param question 消息内容
+     * @param ctx       通道处理程序
+     * @param question  消息内容
      * @param loginUser 登录用户
      */
     private void askGpt(ChannelHandlerContext ctx, String question, LoginUser loginUser) {
@@ -147,7 +160,7 @@ public class ChatHandler {
             // 响应大模型的答案
             log.info("-------xfxh响应：{}-----------", listener.getAnswer().toString());
             ChatMsgVO chatMsgVO = new ChatMsgVO();
-            chatMsgVO.setType(ChatResType.ASK_GPT.getCode());
+            chatMsgVO.setType(ChatMsgType.ASK_GPT.getCode());
             chatMsgVO.setContent(listener.getAnswer().toString());
             chatMsgVO.setNickName(loginUser.getUser().getNickName());
             chatMsgVO.setAvatar(loginUser.getUser().getAvatar());
@@ -184,7 +197,7 @@ public class ChatHandler {
         } else {
             //如果在线，就直接发送消息
             ChatMsgVO chatMsgVO = new ChatMsgVO();
-            chatMsgVO.setType(ChatResType.CHAT_MSG.getCode());
+            chatMsgVO.setType(ChatMsgType.PRIVATE_CHAT.getCode());
             chatMsgVO.setNickName(chatMsg.getNickName() + "系统消息" + LocalDateTime.now());
             chatMsgVO.setContent(chatMsg.getContent());
             channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(chatMsgVO)));
@@ -200,7 +213,7 @@ public class ChatHandler {
     private void writeFlushFailUtil(ChannelHandlerContext ctx, String str) {
         ChatMsgVO chatMsgVO = new ChatMsgVO();
         chatMsgVO.setContent(str);
-        chatMsgVO.setType(ChatResType.WARNING.getCode());
+        chatMsgVO.setType(ChatMsgType.ERROR.getCode());
         ctx.channel().writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(chatMsgVO)));
     }
 }

@@ -1,4 +1,4 @@
-package com.ruoyi.common.listener;
+package com.ruoyi.system.listener;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.ruoyi.common.core.dto.XfxhMsgDTO;

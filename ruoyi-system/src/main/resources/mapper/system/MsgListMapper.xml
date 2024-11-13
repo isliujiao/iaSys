@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MsgListMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.common.core.domain.entity.MsgList">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="roomId" column="roomId" jdbcType="BIGINT"/>
+        <result property="fromUid" column="fromUid" jdbcType="BIGINT"/>
+        <result property="nickName" column="nickName" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="replyMsgId" column="replyMsgId" jdbcType="BIGINT"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="save" parameterType="MsgList">
+        insert into msg_list(roomId,fromUid,nickName,content,replyMsgId,`type`,createTime,updateTime)
+        values(#{roomId},#{fromUid},#{nickName},#{content},#{replyMsgId},#{type},sysdate(),#{updateTime})
+    </insert>
+
+    <select id="getMessageNoticeList" resultType="MsgList">
+        select id,roomId,fromUid,nickName,content,replyMsgId,`type`,createTime,updateTime
+        from msg_list
+    </select>
+
+
+</mapper>

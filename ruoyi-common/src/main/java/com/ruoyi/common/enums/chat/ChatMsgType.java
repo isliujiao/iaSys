@@ -11,6 +11,11 @@ import lombok.Getter;
 public enum ChatMsgType {
 
     /**
+     * 系统消息
+     */
+    SYSTEM(10000),
+
+    /**
      * 建立私聊连接事件
      */
     CONNECTION(10001),

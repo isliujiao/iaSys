@@ -1,16 +1,23 @@
 package com.ruoyi.web.controller.chat;
 
 import com.ruoyi.chat.ChatNettyServer;
+import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.core.dto.ChatMsgVO;
+import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.system.domain.dto.chart.GenChartByAiRequest;
+import com.ruoyi.system.domain.dto.chat.MsgQueryRequest;
+import com.ruoyi.system.service.MsgListService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 import static com.ruoyi.common.core.domain.AjaxResult.success;
 
@@ -21,11 +28,13 @@ import static com.ruoyi.common.core.domain.AjaxResult.success;
 @RestController
 @RequestMapping("/chat")
 @Slf4j
-public class ChatMsgController {
+public class ChatMsgController extends BaseController {
 
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private MsgListService msgListService;
     @Autowired
     private ChatNettyServer nettyServer;
 
@@ -46,4 +55,12 @@ public class ChatMsgController {
             log.info("---关闭连接用户：{}、用户名：{}--", SecurityUtils.getUserId(),SecurityUtils.getUsername());
         }
     }
+
+    @GetMapping("/getMessageNoticeList")
+    public TableDataInfo getMessageNoticeList(MsgQueryRequest msgQueryRequest){
+        startPage();
+        List<ChatMsgVO> msgVoList =  msgListService.getMessageNoticeList(msgQueryRequest);
+        return getDataTable(msgVoList);
+    }
+
 }

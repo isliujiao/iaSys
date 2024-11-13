@@ -1,5 +1,6 @@
 package com.ruoyi.common.core.dto;
 
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -12,12 +13,21 @@ import java.util.List;
  * 群聊消息DTO
  */
 @Data
+@Builder
 public class GroupMessageDTO {
     /**
      * 群聊id
      */
     @NotNull(message = "群聊id不可为空")
     private Long groupId;
+
+    /**
+     * 消息发送用户ID
+     */
+    @NotNull(message = "消息发送用户ID不可为空")
+    private Long fromUserId;
+
+    private String nickName;
 
     /**
      * 发送内容
