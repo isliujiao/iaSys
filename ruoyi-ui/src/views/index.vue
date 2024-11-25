@@ -125,6 +125,9 @@
         </el-card>
       </el-col>
     </el-row>
+    <div class="footer-copyright">
+      <p>版权所有：© <a href="https://github.com/isliujiao" target="_blank"> isliujiao@github.com </a> 备案号：<a href="https://beian.miit.gov.cn/" target="_blank"> 鲁ICP备2024061781号-1</a></p>
+    </div>
   </div>
 </template>
 
@@ -160,6 +163,15 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.footer-copyright {
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px 0;
+  font-size: 12px;
+  color: #999;
+  border-top: 1px solid #eee;
+}
+
 .el-carousel__item h3 {
   /* 文字颜色 */
   color: #fff;
