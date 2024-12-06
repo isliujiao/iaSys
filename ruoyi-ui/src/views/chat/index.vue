@@ -305,6 +305,12 @@ export default {
         this.socket.onerror = (error) => {
           console.error('WebSocket 错误：', error);
           this.connected = false;
+          this.$notify({
+            title: '失败',
+            message: "系统消息：WS连接失败",
+            type: 'error',
+            offset: 80
+          });
         };
       });
     },
