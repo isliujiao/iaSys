@@ -1,7 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.log.Log;
+import cn.hutool.core.collection.ListUtil;
 import com.ruoyi.common.core.domain.entity.MsgList;
 import com.ruoyi.common.core.dto.ChatMsgVO;
 import com.ruoyi.common.utils.DateUtils;
@@ -42,6 +42,6 @@ public class MsgListServiceImpl implements MsgListService {
             chatMsgVO.setSendMsg(info.getContent());
             return chatMsgVO;
         }).collect(Collectors.toList());
-        return msgVOList;
+        return ListUtil.reverse(msgVOList);
     }
 }

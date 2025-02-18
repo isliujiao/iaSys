@@ -59,7 +59,7 @@
       <span>
       <a href="https://github.com/isliujiao" target="_blank">isliujiao@github.com </a>
       </span>
-      <a href="https://beian.miit.gov.cn/" target="_blank">鲁ICP备2024061781号-1</a>
+      <a href="https://beian.miit.gov.cn/" target="_blank">鲁ICP备2024061781号-2</a>
     </div>
   </div>
 </template>

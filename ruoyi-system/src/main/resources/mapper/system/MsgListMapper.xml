@@ -24,6 +24,7 @@
     <select id="getMessageNoticeList" resultType="MsgList">
         select id,roomId,fromUid,nickName,content,replyMsgId,`type`,createTime,updateTime
         from msg_list
+        order by createTime desc
     </select>
 
 

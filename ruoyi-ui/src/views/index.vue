@@ -126,7 +126,7 @@
       </el-col>
     </el-row>
     <div class="footer-copyright">
-      <p>版权所有：© <a href="https://github.com/isliujiao" target="_blank"> isliujiao@github.com </a> 备案号：<a href="https://beian.miit.gov.cn/" target="_blank"> 鲁ICP备2024061781号-1</a></p>
+      <p>版权所有：© <a href="https://github.com/isliujiao" target="_blank"> isliujiao@github.com </a> 备案号：<a href="https://beian.miit.gov.cn/" target="_blank"> 鲁ICP备2024061781号-2</a></p>
     </div>
   </div>
 </template>
