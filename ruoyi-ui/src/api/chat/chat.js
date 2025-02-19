@@ -9,9 +9,10 @@ export function closeUserConnect(token) {
   })
 }
 
-export function getMessageNoticeList() {
+export function getMessageNoticeList(searchParams) {
   return request({
     url: '/chat/getMessageNoticeList',
-    method: 'get'
+    method: 'get',
+    params: searchParams,
   })
 }

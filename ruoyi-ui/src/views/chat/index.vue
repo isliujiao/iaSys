@@ -173,9 +173,9 @@ export default {
      * 获取消息列表
      */
     getMsgList() {
-      let queryParams = {
-        current: 1,
-        pageSize: 30
+      const queryParams = {
+        pageNum: this.pageNum,
+        pageSize: this.pageSize
       }
       getMessageNoticeList(queryParams).then(response => {
         console.log("返回的消息列表", response);
