@@ -1,8 +1,6 @@
 package com.ruoyi.system.mapper;
 
 import com.ruoyi.common.core.domain.entity.MsgList;
-import com.ruoyi.common.core.dto.ChatMsgVO;
-import com.ruoyi.system.domain.dto.chat.MsgQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -22,6 +20,6 @@ public interface MsgListMapper {
      * @param msgQueryRequest
      * @return
      */
-    List<MsgList> getMessageNoticeList(MsgQueryRequest msgQueryRequest);
+    List<MsgList> getMessageNoticeList(MsgList msgQueryRequest);
 
 }

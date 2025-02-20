@@ -5,7 +5,6 @@ import cn.hutool.core.collection.ListUtil;
 import com.ruoyi.common.core.domain.entity.MsgList;
 import com.ruoyi.common.core.dto.ChatMsgVO;
 import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.system.domain.dto.chat.MsgQueryRequest;
 import com.ruoyi.system.mapper.MsgListMapper;
 import com.ruoyi.system.service.MsgListService;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,7 +29,7 @@ public class MsgListServiceImpl implements MsgListService {
     }
 
     @Override
-    public List<ChatMsgVO> getMessageNoticeList(MsgQueryRequest msgQueryRequest) {
+    public List<ChatMsgVO> getMessageNoticeList(MsgList msgQueryRequest) {
         if (ObjectUtils.isEmpty(msgQueryRequest.getRoomId())) {
             msgQueryRequest.setRoomId(0L);
         }

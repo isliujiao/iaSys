@@ -2,12 +2,12 @@ package com.ruoyi.web.controller.chat;
 
 import com.ruoyi.chat.ChatNettyServer;
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.domain.entity.MsgList;
 import com.ruoyi.common.core.dto.ChatMsgVO;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.TokenService;
-import com.ruoyi.system.domain.dto.chat.MsgQueryRequest;
 import com.ruoyi.system.service.MsgListService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class ChatMsgController extends BaseController {
     }
 
     @GetMapping("/getMessageNoticeList")
-    public TableDataInfo getMessageNoticeList(MsgQueryRequest msgQueryRequest){
+    public TableDataInfo getMessageNoticeList(MsgList msgQueryRequest){
         startPage();
         List<ChatMsgVO> msgVoList =  msgListService.getMessageNoticeList(msgQueryRequest);
         return getDataTable(msgVoList);

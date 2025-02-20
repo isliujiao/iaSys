@@ -21,7 +21,7 @@
         values(#{roomId},#{fromUid},#{nickName},#{content},#{replyMsgId},#{type},sysdate(),#{updateTime})
     </insert>
 
-    <select id="getMessageNoticeList" resultType="MsgList">
+    <select id="getMessageNoticeList" parameterType="MsgList" resultMap="BaseResultMap">
         select id,roomId,fromUid,nickName,content,replyMsgId,`type`,createTime,updateTime
         from msg_list
         order by createTime desc

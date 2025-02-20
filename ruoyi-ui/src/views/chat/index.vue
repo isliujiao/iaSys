@@ -10,6 +10,10 @@
           </div>
           <div class="chat-messages" ref="messageContainer"
                style="height: 400px; overflow: auto; border-top: 1px solid #ccc;">
+            <!-- 加载提示 -->
+            <div v-if="isLoading" class="loading-more">加载中...</div>
+            <div v-else class="no-more">没有更多消息了</div>
+
             <div v-for="(message, index) in messages" :key="index" class="message">
               <!-- 建立群聊连接事件 - 10002 -->
               <div v-if="message.type === 10002" @methods="succeedJoinGroup(message.content)">
@@ -144,6 +148,11 @@ export default {
       focusNode: null, // 缓存光标所在节点
       focusOffset: null, // 缓存光标所在节点位置
       zhLock: false, // 解决中文输入法触发英文的情况
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
+      isLoading: false,
+      hasMore: true
     };
   },
   created() {
@@ -163,8 +172,47 @@ export default {
     });
     // 在 beforeunload 上添加事件监听器
     window.addEventListener('beforeunload', this.closeWebSocket);
+    this.$nextTick(() => {
+      const container = this.$refs.messageContainer;
+      container.addEventListener('scroll', this.handleScroll);
+    });
+  },
+  beforeUnmount() {
+    const container = this.$refs.messageContainer;
+    if (container) {
+      container.removeEventListener('scroll', this.handleScroll);
+    }
   },
   methods: {
+    handleScroll() {
+      const container = this.$refs.messageContainer;
+      console.log("------->handleScroll,isLoading:",this.isLoading + ",hasMore:", this.hasMore);
+      // 调整触发条件（增加缓冲区域）
+      if (container.scrollTop <= 30 && this.hasMore) {
+        console.log("-------------->handleScroll - 调整触发条件（增加缓冲区域）");
+        this.loadMoreMessages();
+      }
+    },
+    // 优化后的加载方法
+    async loadMoreMessages() {
+      console.log("----------------loadMoreMessages")
+      const container = this.$refs.messageContainer;
+      // 记录当前滚动高度和位置
+      const prevScrollHeight = container.scrollHeight;
+      const prevScrollTop = container.scrollTop;
+      
+      try {
+        await this.getMsgList(true);
+        
+        // 保持滚动位置
+        this.$nextTick(() => {
+          const newScrollHeight = container.scrollHeight;
+          container.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+        });
+      } catch (error) {
+        console.error('加载消息失败:', error);
+      }
+    },
     truncatedContent(tokenId) {
       // 截取前100个字符
       return tokenId.slice(0, 5);
@@ -172,16 +220,42 @@ export default {
     /**
      * 获取消息列表
      */
-    getMsgList() {
+     // 修改后的消息获取方法
+     async getMsgList(loadMore = false) {
+      console.log("------->getMsgList,isLoading:",this.isLoading, ",hasMore:", !this.hasMore);
+      if (this.isLoading || !this.hasMore) return;
+
+      this.isLoading = true;
       const queryParams = {
         pageNum: this.pageNum,
         pageSize: this.pageSize
+      };
+
+      try {
+        const response = await getMessageNoticeList(queryParams);
+        console.log("------->getMsgList,isLoading2:",this.isLoading);
+        console.log("------->getMsgList,hasMore:",!this.hasMore);
+        if (!this.isLoading) {
+          // 历史消息加在前边
+          this.messages = [...response.rows, ...this.messages];
+        } else {
+          this.messages = response.rows;
+          // 初始化时滚动到底部
+          this.$nextTick(() => {
+            const container = this.$refs.messageContainer;
+            container.scrollTop = container.scrollHeight;
+          });
+        }
+
+        // 更新分页状态
+        this.total = response.total;
+        console.log("------->getMsgList,this.messages.length:", this.messages.length," this.total",this.total);
+        this.hasMore = this.messages.length < this.total;
+        this.pageNum = loadMore ? this.pageNum + 1 : 1;
+      } finally {
+        console.log("======getMsgList=====")
+        this.isLoading = false;
       }
-      getMessageNoticeList(queryParams).then(response => {
-        console.log("返回的消息列表", response);
-        this.messages = response.rows;
-        console.log("this.messages", this.messages);
-      })
     },
     succeedJoinGroup(content) {
       this.$notify({
@@ -459,6 +533,14 @@ export default {
 </script>
 
 <style lang="scss">
+
+.loading-more, .no-more {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 12px;
+}
+
 .el-row {
   display: flex;
 }
@@ -524,6 +606,8 @@ export default {
 .chat-messages {
   max-height: 400px;
   overflow-y: auto;
+  /* 需要强制指定高度才能触发滚动事件 */
+  height: 400px;
 }
 
 .message {

@@ -1,6 +1,7 @@
 package com.ruoyi.common.core.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.core.domain.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,8 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @Data
-public class MsgList implements Serializable {
+public class MsgList  extends BaseEntity {
+    private static final long serialVersionUID = 1L;
 
     /**
      * id

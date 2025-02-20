@@ -2,7 +2,6 @@ package com.ruoyi.system.service;
 
 import com.ruoyi.common.core.domain.entity.MsgList;
 import com.ruoyi.common.core.dto.ChatMsgVO;
-import com.ruoyi.system.domain.dto.chat.MsgQueryRequest;
 
 import java.util.List;
 
@@ -19,5 +18,5 @@ public interface MsgListService {
      * @param msgQueryRequest
      * @return
      */
-    List<ChatMsgVO> getMessageNoticeList(MsgQueryRequest msgQueryRequest);
+    List<ChatMsgVO> getMessageNoticeList(MsgList msgQueryRequest);
 }
