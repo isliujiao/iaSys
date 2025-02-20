@@ -1,6 +1,8 @@
 package com.ruoyi.web.controller.chat;
 
+import com.github.pagehelper.PageInfo;
 import com.ruoyi.chat.ChatNettyServer;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.entity.MsgList;
 import com.ruoyi.common.core.dto.ChatMsgVO;
@@ -11,6 +13,7 @@ import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.system.service.MsgListService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,17 +49,22 @@ public class ChatMsgController extends BaseController {
 //        LoginUser loginUser = tokenService.getLoginUser(token);
 //        nettyServer.USERS.remove(loginUser.getUserId().toString());
 //        log.info("---关闭用户：{} 连接--", loginUser.getUserId());
-        if(!StringUtils.isEmpty(SecurityUtils.getUserId().toString())){
+        if (!StringUtils.isEmpty(SecurityUtils.getUserId().toString())) {
             nettyServer.USERS.remove(SecurityUtils.getUserId().toString());
-            log.info("---关闭连接用户：{}、用户名：{}--", SecurityUtils.getUserId(),SecurityUtils.getUsername());
+            log.info("---关闭连接用户：{}、用户名：{}--", SecurityUtils.getUserId(), SecurityUtils.getUsername());
         }
     }
 
+
     @GetMapping("/getMessageNoticeList")
-    public TableDataInfo getMessageNoticeList(MsgList msgQueryRequest){
-        startPage();
-        List<ChatMsgVO> msgVoList =  msgListService.getMessageNoticeList(msgQueryRequest);
-        return getDataTable(msgVoList);
+    public TableDataInfo getMessageNoticeList(MsgList msgQueryRequest) {
+        PageInfo<ChatMsgVO> pageInfo = msgListService.getMessageNoticeList(msgQueryRequest);
+        TableDataInfo rspData = new TableDataInfo();
+        rspData.setCode(HttpStatus.SUCCESS);
+        rspData.setMsg("查询成功");
+        rspData.setRows(pageInfo.getList());
+        rspData.setTotal(pageInfo.getTotal());
+        return rspData;
     }
 
 }

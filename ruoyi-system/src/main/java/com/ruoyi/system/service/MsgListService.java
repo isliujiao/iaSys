@@ -1,5 +1,6 @@
 package com.ruoyi.system.service;
 
+import com.github.pagehelper.PageInfo;
 import com.ruoyi.common.core.domain.entity.MsgList;
 import com.ruoyi.common.core.dto.ChatMsgVO;
 
@@ -18,5 +19,5 @@ public interface MsgListService {
      * @param msgQueryRequest
      * @return
      */
-    List<ChatMsgVO> getMessageNoticeList(MsgList msgQueryRequest);
+    PageInfo<ChatMsgVO> getMessageNoticeList(MsgList msgQueryRequest);
 }
