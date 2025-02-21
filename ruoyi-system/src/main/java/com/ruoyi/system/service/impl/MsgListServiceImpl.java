@@ -34,16 +34,16 @@ public class MsgListServiceImpl implements MsgListService {
 
     @Override
     // Service层修改
-    public PageInfo<ChatMsgVO> getMessageNoticeList(MsgList msgQueryRequest) {
+    public PageInfo<ChatMsgVO> getMessageNoticeList(MsgList msgList) {
         // 获取分页参数
         PageDomain pageDomain = TableSupport.buildPageRequest();
         PageHelper.startPage(pageDomain.getPageNum(), pageDomain.getPageSize());
 
         // 原始查询
-        List<MsgList> msgList = msgListMapper.getMessageNoticeList(msgQueryRequest);
+        List<MsgList> list = msgListMapper.getMessageNoticeList(msgList);
 
         // 转换为Page对象
-        Page<MsgList> page = (Page<MsgList>) msgList;
+        Page<MsgList> page = (Page<MsgList>) list;
 
         // 处理数据并保留分页信息
         List<ChatMsgVO> msgVOList = page.getResult().stream().map(info -> {

@@ -16,8 +16,8 @@ public interface MsgListService {
     /**
      * 聊天查询请求
      *
-     * @param msgQueryRequest
+     * @param msgList
      * @return
      */
-    PageInfo<ChatMsgVO> getMessageNoticeList(MsgList msgQueryRequest);
+    PageInfo<ChatMsgVO> getMessageNoticeList(MsgList msgList);
 }

@@ -17,9 +17,9 @@ public interface MsgListMapper {
     /**
      * 分页获取用户房间消息列表
      *
-     * @param msgQueryRequest
+     * @param msgList
      * @return
      */
-    List<MsgList> getMessageNoticeList(MsgList msgQueryRequest);
+    List<MsgList> getMessageNoticeList(MsgList msgList);
 
 }
