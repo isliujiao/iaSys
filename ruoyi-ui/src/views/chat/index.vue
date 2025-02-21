@@ -1,5 +1,5 @@
 <template>
-  <div class="ml20" >
+  <div class="ml20">
     <el-row>
       <!-- 聊天室 -->
       <el-col class="chat-container" :span="14" style="margin-bottom: 12px;">
@@ -9,7 +9,7 @@
             - 聊天室 -
           </div>
           <div class="chat-messages" ref="messageContainer"
-               style="height: 400px; overflow: auto; border-top: 1px solid #ccc;">
+            style="height: 400px; overflow: auto; border-top: 1px solid #ccc;">
             <!-- 加载提示 -->
             <div v-if="isLoading" class="loading-more">加载中...</div>
             <div v-else class="no-more">没有更多消息了</div>
@@ -91,8 +91,8 @@
           <!--输入框部份-->
           <div class="chat-input" style="height: 120px; right: 50px;left: 100px;">
             <div class="input-msg" ref="editBox" :content="this.newMessage" contenteditable="true" id="customInput"
-                 placeholder="在此输入信息……" v-html="newMessage" @input="onEditorInput" @blur="onEditBoxBlur"
-                 @keydown.down="onKeyDown" @keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter"></div>
+              placeholder="在此输入信息……" v-html="newMessage" @input="onEditorInput" @blur="onEditBoxBlur"
+              @keydown.down="onKeyDown" @keydown.up="onKeyUp" @keydown.enter.prevent="onKeyEnter"></div>
             <div style="text-align: right; padding-right: 10px;">
               <el-button type="primary" size="small" @click="sendGroupMessage">发送</el-button>
             </div>
@@ -120,10 +120,10 @@
 </template>
 
 <script>
-import {getUserProfile} from "@/api/system/user";
-import {closeUserConnect, getMessageNoticeList} from "@/api/chat/chat.js";
-import {getToken} from "@/utils/auth";
-import {list} from "@/api/monitor/online";
+import { getUserProfile } from "@/api/system/user";
+import { closeUserConnect, getMessageNoticeList } from "@/api/chat/chat.js";
+import { getToken } from "@/utils/auth";
+import { list } from "@/api/monitor/online";
 import Emotion from "@/components/Chat/Emotion.vue";
 
 export default {
@@ -149,7 +149,7 @@ export default {
       focusOffset: null, // 缓存光标所在节点位置
       zhLock: false, // 解决中文输入法触发英文的情况
       pageNum: 1,
-      pageSize: 10,
+      pageSize: 20,
       total: 0,
       isLoading: false,
       hasMore: true
@@ -186,9 +186,9 @@ export default {
   methods: {
     handleScroll() {
       const container = this.$refs.messageContainer;
-      console.log("------->handleScroll,isLoading:",this.isLoading + ",hasMore:", this.hasMore);
+      console.log("------->handleScroll,isLoading:", this.isLoading + ",hasMore:", this.hasMore);
       // 调整触发条件（增加缓冲区域）
-      if (container.scrollTop <= 30 && this.hasMore) {
+      if (container.scrollTop <= 50 && this.hasMore) {
         console.log("-------------->handleScroll - 调整触发条件（增加缓冲区域）");
         this.loadMoreMessages();
       }
@@ -200,10 +200,10 @@ export default {
       // 记录当前滚动高度和位置
       const prevScrollHeight = container.scrollHeight;
       const prevScrollTop = container.scrollTop;
-      
+
       try {
         await this.getMsgList(true);
-        
+
         // 保持滚动位置
         this.$nextTick(() => {
           const newScrollHeight = container.scrollHeight;
@@ -220,40 +220,34 @@ export default {
     /**
      * 获取消息列表
      */
-     // 修改后的消息获取方法
-     async getMsgList(loadMore = false) {
-      console.log("------->getMsgList,isLoading:",this.isLoading, ",hasMore:", !this.hasMore);
+    // 修改后的消息获取方法
+    async getMsgList(loadMore = false) {
       if (this.isLoading || !this.hasMore) return;
-
       this.isLoading = true;
+      // 在发送请求前确定当前页码
+      const currentPage = loadMore ? this.pageNum + 1 : 1;
       const queryParams = {
-        pageNum: this.pageNum,
+        pageNum: currentPage, // 使用计算后的当前页码
         pageSize: this.pageSize
       };
 
       try {
         const response = await getMessageNoticeList(queryParams);
-        console.log("------->getMsgList,isLoading2:",this.isLoading);
-        console.log("------->getMsgList,hasMore:",!this.hasMore);
-        if (!this.isLoading) {
-          // 历史消息加在前边
+        if (loadMore) {
           this.messages = [...response.rows, ...this.messages];
+          this.pageNum = currentPage; // 请求成功后更新pageNum
         } else {
           this.messages = response.rows;
+          this.pageNum = 1; // 初始加载重置为1
           // 初始化时滚动到底部
           this.$nextTick(() => {
             const container = this.$refs.messageContainer;
             container.scrollTop = container.scrollHeight;
           });
         }
-
-        // 更新分页状态
         this.total = response.total;
-        console.log("------->getMsgList,this.messages.length:", this.messages.length," this.total",this.total);
         this.hasMore = this.messages.length < this.total;
-        this.pageNum = loadMore ? this.pageNum + 1 : 1;
       } finally {
-        console.log("======getMsgList=====")
         this.isLoading = false;
       }
     },
@@ -333,7 +327,7 @@ export default {
           this.connected = true;
           // 在连接建立时发送鉴权信息
           const authHeader = getToken(); // 替换成实际的鉴权信息
-          this.socket.send(JSON.stringify({type: 'Authorization', token: authHeader}));
+          this.socket.send(JSON.stringify({ type: 'Authorization', token: authHeader }));
           console.log('WebSocket 连接已建立');
           resolve();
         };
@@ -533,8 +527,8 @@ export default {
 </script>
 
 <style lang="scss">
-
-.loading-more, .no-more {
+.loading-more,
+.no-more {
   text-align: center;
   padding: 10px;
   color: #666;
@@ -544,18 +538,23 @@ export default {
 .el-row {
   display: flex;
 }
+
 .el-col:first-child {
   width: 200px;
 }
+
 .el-col.chat-container {
   flex: 1;
-  opacity: 0.93; /* 设置不透明度为0.5 */
+  opacity: 0.93;
+  /* 设置不透明度为0.5 */
 }
-.ml20{
+
+.ml20 {
   padding: 3px;
   background-image: url("../../assets/images/login-background1.jpg");
   background-size: cover;
 }
+
 .chat-tool-bar {
 
   display: flex;
@@ -566,7 +565,7 @@ export default {
   box-sizing: border-box;
   border: #dddddd solid 1px;
 
-  > div {
+  >div {
     margin-left: 10px;
     font-size: 22px;
     cursor: pointer;
@@ -716,5 +715,4 @@ export default {
   width: 30px;
   height: 30px;
   vertical-align: bottom;
-}
-</style>
+}</style>
