@@ -188,7 +188,7 @@ export default {
       const container = this.$refs.messageContainer;
       console.log("------->handleScroll,isLoading:", this.isLoading + ",hasMore:", this.hasMore);
       // 调整触发条件（增加缓冲区域）
-      if (container.scrollTop <= 50 && this.hasMore) {
+      if (container.scrollTop <= 40 && this.hasMore) {
         console.log("-------------->handleScroll - 调整触发条件（增加缓冲区域）");
         this.loadMoreMessages();
       }
