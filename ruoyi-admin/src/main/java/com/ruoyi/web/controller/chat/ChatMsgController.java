@@ -13,12 +13,9 @@ import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.system.service.MsgListService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * @author liujiao
@@ -57,8 +54,8 @@ public class ChatMsgController extends BaseController {
 
 
     @GetMapping("/getMessageNoticeList")
-    public TableDataInfo getMessageNoticeList(MsgList msgQueryRequest) {
-        PageInfo<ChatMsgVO> pageInfo = msgListService.getMessageNoticeList(msgQueryRequest);
+    public TableDataInfo getMessageNoticeList(MsgList msgList) {
+        PageInfo<ChatMsgVO> pageInfo = msgListService.getMessageNoticeList(msgList);
         TableDataInfo rspData = new TableDataInfo();
         rspData.setCode(HttpStatus.SUCCESS);
         rspData.setMsg("查询成功");
