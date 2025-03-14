@@ -2,6 +2,8 @@ package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.config.RedisLimiterManager;
 import com.ruoyi.common.config.YcmAiManager;
 import com.ruoyi.common.core.domain.ErrorCode;
@@ -9,6 +11,7 @@ import com.ruoyi.common.core.domain.entity.Chart;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.enums.ChartStatusEnum;
 import com.ruoyi.common.exception.base.BusinessException;
+import com.ruoyi.common.utils.ChatToAIUtils;
 import com.ruoyi.common.utils.ExcelUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.ThrowUtils;
@@ -122,7 +125,9 @@ public class ChartServiceImpl implements ChartService {
         log.info("【向AI发送请求userInput：{}】", userInput);
 
         //发送请求，得到响应数据
-        String result = ycmAiManager.doChat(BI_MODEL_ID, userInput.toString());
+//        String result = ycmAiManager.doChat(BI_MODEL_ID, userInput.toString());
+        String result = ChatToAIUtils.askTyqwEcharts(userInput.toString());
+
         log.info("【AI-result返回结果：{}】", result);
         if (StringUtils.isEmpty(result)) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 生成错误");
@@ -133,7 +138,7 @@ public class ChartServiceImpl implements ChartService {
         if (splits.length < 3) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 生成错误");
         }
-        String genChart = splits[1].trim();//拿到ChartCode图标编码
+        String genChart = splits[1].trim().replace("\\", "").replace("\n", "");//拿到ChartCode图标编码
         String genResult = splits[2].trim();//拿到返回结果值
 
         //todo 插入数据库

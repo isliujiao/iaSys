@@ -1,4 +1,4 @@
-package com.ruoyi.system.domain;
+package com.ruoyi.common.core.domain;
 
 /**
  * 百炼-通义千问 消息请求体

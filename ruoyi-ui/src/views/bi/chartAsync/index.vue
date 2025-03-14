@@ -10,7 +10,7 @@
               <el-input placeholder="请输入图表名称" v-model="form.chartName"></el-input>
             </el-form-item>
 
-            
+
 
             <el-form-item label="图表类型" prop="chartType">
               <el-select v-model="form.chartType" placeholder="请选择">
@@ -23,11 +23,11 @@
               </el-select>
             </el-form-item>
             <el-form-item label="原始数据" prop="file">
-              
-              <el-upload 
-                action="" 
-                :file-list="fileList" 
-                :on-exceed="handleExceed" 
+
+              <el-upload
+                action=""
+                :file-list="fileList"
+                :on-exceed="handleExceed"
                 :before-upload="beforeUpload">
                 <el-button slot="trigger" type="primary" icon="el-icon-upload">
                   上传 EXCEL 文件
@@ -98,7 +98,7 @@ export default {
           this.$message.error('分析失败-' + response.data.msg);
           this.resetForm('addChart');
         } else {
-          this.$message.success('分析成功');
+          this.$message.success('分析成功，请稍后在‘ 我的分析图表’中查看结果！');
           this.resetForm('addChart');
         }
       } catch (e) {

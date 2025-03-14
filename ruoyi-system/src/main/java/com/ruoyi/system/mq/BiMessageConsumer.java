@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.ErrorCode;
 import com.ruoyi.common.core.domain.entity.Chart;
 import com.ruoyi.common.enums.ChartStatusEnum;
 import com.ruoyi.common.exception.base.BusinessException;
+import com.ruoyi.common.utils.ChatToAIUtils;
 import com.ruoyi.system.service.ChartService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,9 @@ public class BiMessageConsumer {
         }
 
         // 调用 AI
-        String result = aiManager.doChat(CommonConstant.BI_MODEL_ID, buildUserInput(chart));
+//        String result = aiManager.doChat(CommonConstant.BI_MODEL_ID, buildUserInput(chart));
+        String result = ChatToAIUtils.askTyqwEcharts(buildUserInput(chart));
+
         String[] splits = result.split("【【【【【");
         if (splits.length < 3) {
             channel.basicNack(deliveryTag, false, false);

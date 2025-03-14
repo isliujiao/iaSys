@@ -16,8 +16,8 @@ import com.ruoyi.common.enums.chat.XfxhTokenEnum;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.TokenService;
-import com.ruoyi.system.domain.TyqwMsg;
-import com.ruoyi.system.domain.TyqwReqBody;
+import com.ruoyi.common.core.domain.TyqwMsg;
+import com.ruoyi.common.core.domain.TyqwReqBody;
 import com.ruoyi.system.event.UserGroupMessageEvent;
 import com.ruoyi.system.listener.XfXhWebSocketListener;
 import com.ruoyi.system.service.XfXhStreamServer;
@@ -202,7 +202,7 @@ public class ChatHandler {
      * @param loginUser
      */
     private void askTyqwGpt(ChannelHandlerContext ctx, String question, LoginUser loginUser) {
-        log.info("---------开始向xfxh发送消息---------");
+        log.info("---------开始向百炼-通义千问发送消息---------");
         // 如果是无效字符串，则不对大模型进行请求
         if (StringUtils.isBlank(question)) {
             writeFlushFailUtil(ctx, "无效问题，请重新输入");

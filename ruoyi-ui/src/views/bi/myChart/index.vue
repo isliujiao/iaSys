@@ -10,7 +10,7 @@
 
     <!-- List of charts -->
     <el-row :gutter="24" class="grid-charts">
-      <el-col :span="colSpan" class="custom-chart-col" v-for="(chart, index) in chartList" :key="chart.id">
+      <el-col :span="colSpan" class="custom-chart-col" v-for="(chart, index) in chartList" :key="chart.id" style="width: 50%; height: 90%">
         <el-card class="chart-card" :body-style="{ padding: '20px' }">
           <el-button class="close-button" type="danger" icon="el-icon-delete" @click="handleDelete(chart.id, index)"></el-button>
           <div>
@@ -22,7 +22,7 @@
           <p>分析目标：{{ chart.goal }}</p>
           <el-divider></el-divider>
           <el-scrollbar wrap-class="chart-scroll">
-            <div :id="`chartContainer_${index}`" ref="Echarts" style="width: 450px; height: 320px"></div>
+            <div :id="`chartContainer_${index}`" ref="Echarts" style="width: 100%; height: 280px"></div>
 
           </el-scrollbar>
         </el-card>

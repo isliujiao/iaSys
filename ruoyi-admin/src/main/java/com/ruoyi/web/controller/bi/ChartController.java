@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.bi;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.ChatToAIUtils;
 import com.ruoyi.system.domain.dto.chart.ChartQueryRequest;
 import com.ruoyi.system.domain.dto.chart.GenChartByAiRequest;
 import com.ruoyi.system.service.ChartService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.QueryParam;
 
 /**
  * 图表
@@ -63,12 +65,12 @@ public class ChartController extends BaseController {
      * 智能分析（异步）
      * 弃用
      */
-    @Deprecated
-    @PostMapping("/gen/async")
-    public AjaxResult genChartByAiAsync(@RequestPart("file") MultipartFile multipartFile,
-                                        GenChartByAiRequest genChartByAiRequest) {
-        return success(chartService.genChartByAiAsync(multipartFile, genChartByAiRequest));
-    }
+//    @Deprecated
+//    @PostMapping("/gen/async")
+//    public AjaxResult genChartByAiAsync(@RequestPart("file") MultipartFile multipartFile,
+//                                        GenChartByAiRequest genChartByAiRequest) {
+//        return success(chartService.genChartByAiAsync(multipartFile, genChartByAiRequest));
+//    }
 
 
     /**
@@ -82,4 +84,11 @@ public class ChartController extends BaseController {
 
 
     // region 增删改查
+
+
+    @GetMapping("/test")
+    public AjaxResult test(@RequestParam("msg") String msg) {
+        log.info("msg = {}", ChatToAIUtils.askTyqwEcharts(msg));
+        return success();
+    }
 }
