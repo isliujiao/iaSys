@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * 帖子
  */
-//@TableName(value = "post")
+// @TableName(value = "post")
 @Data
 public class Post implements Serializable {
 

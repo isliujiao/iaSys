@@ -39,6 +39,12 @@
         </foreach>
     </insert>
 
+    <insert id="insertPost" parameterType="post">
+        insert into post(title, content, tags, thumbNum, favourNum, userId)
+        VALUES (#{title}, #{content}, #{tags}, #{thumbNum},
+                #{favourNum}, #{userId})
+    </insert>
+
     <select id="listPostWithDelete" resultType="com.ruoyi.common.core.domain.entity.Post">
         <include refid="selectPost"/>
         where p.updateTime >= #{minUpdateTime}

@@ -320,7 +320,7 @@ export default {
       return new Promise((resolve, reject) => {
 
         // WS连接
-        this.socket = new WebSocket('ws://124.222.6.85:9044/ws');
+        this.socket = new WebSocket('ws://localhost:9044/ws');
 
         // 建立消息触发
         this.socket.onopen = () => {

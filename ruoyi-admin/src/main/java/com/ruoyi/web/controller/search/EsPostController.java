@@ -6,7 +6,7 @@ import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.core.page.TableSupport;
 import com.ruoyi.system.domain.dto.post.PostEsDTO;
-import com.ruoyi.system.service.PostService;
+import com.ruoyi.system.service.EsPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public class EsPostController extends BaseController {
 
     @Autowired
-    private PostService postService;
+    private EsPostService postService;
 
     /**
      * ES导入数据库所有文章

@@ -2,17 +2,23 @@ package com.ruoyi.web.controller.common;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.web.controller.tool.TestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.code.kaptcha.Producer;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -87,5 +93,16 @@ public class CaptchaController {
         ajax.put("uuid", uuid);
         ajax.put("img", Base64.encode(os.toByteArray()));
         return ajax;
+    }
+
+    @PostMapping("/resMsg")
+    public JSONObject resMsg(@RequestBody JSONArray array) {
+        // TODO：您需要自行处理回执消息，此示例只打印回执信息
+        System.out.println(array.toJSONString());
+        LOGGER.info("接收回执消息：{}", array.toJSONString());
+        JSONObject json = new JSONObject();
+        json.put("code", 0);
+        json.put("msg", "接收成功");
+        return json;
     }
 }

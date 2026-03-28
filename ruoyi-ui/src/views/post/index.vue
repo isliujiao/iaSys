@@ -1,59 +1,94 @@
 <template>
   <div id="main">
-    <el-row type="flex">
-      <el-col :span="22">
+    <el-form ref="form" :model="formData">
+      <el-form-item prop="title" :rules="[{ required: true, message: '标题不能为空' },{ min: 5, max: 100, message: '标题长度5-100个字符' }]">
         <el-input
-          v-model="title"
-          placeholder="请输入文章标题 (5~100个字)"
-          :maxlength="100"
-          @input="checkTitleLength"
-        ></el-input>
-      </el-col>
-      <el-col :span="2">
-        <el-button type="primary" @click="publishArticle">发布文章</el-button>
-      </el-col>
-    </el-row>
-    <!-- Markdown编辑器 -->
-    <mavon-editor class="markdown" v-model="content" @save="handleSave" />
+          v-model="formData.title"
+          placeholder="请输入文章标题"
+          clearable
+        />
+      </el-form-item>
 
+      <el-form-item prop="tags" label="文章标签">
+        <el-select
+          v-model="formData.tags"
+          multiple
+          filterable
+          allow-create
+          default-first-option
+          placeholder="请选择或输入标签"
+        />
+      </el-form-item>
+
+      <mavon-editor
+        v-model="formData.content"
+        class="markdown"
+        :toolbars="markdownOption"
+        @save="handleSave"
+      />
+
+      <el-form-item>
+        <el-button type="primary" @click="submitForm">立即发布</el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
 <script>
+import { addArticle } from '@/api/system/articleManager';
 export default {
-  name: "index",
   data() {
     return {
-      title: '', // 标题
-      tagList: ['标签1', '标签2', '标签3', '标签4'], // 所有标签列表
-      selectedTags: [], // 选中的标签
-      content: '' // Markdown内容
-    };
+      formData: {
+        title: '',
+        tags: [],
+        content: ''
+      },
+      markdownOption: {
+        bold: true,
+        italic: true,
+        header: true
+        //...其他编辑器配置
+      }
+    }
   },
   methods: {
-    handleSave() {
-      // 构造要发送的数据对象
-      const data = {
-        title: this.title,
-        tags: this.selectedTags,
-        content: this.content
-      };
+    submitForm() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.handleSave()
+        } else {
+          this.$message.error('请完善表单内容')
+          return false
+        }
+      })
+    },
 
-      // 调用API接口，这里使用axios作为HTTP客户端
-      this.axios.post('/api/save', data)
-        .then(response => {
-          // 处理响应
-          console.log(response);
-          alert('保存成功');
+
+    // 在methods中修改调用方式
+    handleSave() {
+      const submitData = {
+        ...this.formData,
+        tags: this.formData.tags.join(','),
+      }
+      addArticle(submitData)
+        .then(() => {
+          this.$message.success('发布成功')
+          this.resetForm()
         })
         .catch(error => {
-          // 处理错误
-          console.error(error);
-          alert('保存失败');
-        });
+          this.$message.error('发布失败：' + error.response.data.msg)
+        })
+    },
+    resetForm() {
+      this.formData = {
+        title: '',
+        tags: [],
+        content: ''
+      }
     }
   }
-};
+}
 </script>
 
 <style scoped>

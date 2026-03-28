@@ -5,12 +5,11 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.core.domain.entity.Post;
-import com.ruoyi.system.service.PostService;
+import com.ruoyi.system.service.EsPostService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ public class FetchInitPostList implements CommandLineRunner {
     public static final Integer GET_PAGE_PAGESIZE = 5;
 
     @Autowired
-    private PostService postService;
+    private EsPostService postService;
 
     /**
      * "@PostConstruct": 项目运行执行一次

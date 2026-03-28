@@ -31,6 +31,9 @@ public interface PostMapper {
     List<SearchVO> selectTopFive();
 
     List<Post> selectAllById(Long id);
+
+    int insertPost(Post post);
+
 }
 
 

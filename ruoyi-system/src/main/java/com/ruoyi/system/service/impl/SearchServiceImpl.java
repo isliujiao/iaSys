@@ -7,14 +7,13 @@ import com.ruoyi.common.exception.base.BusinessException;
 import com.ruoyi.system.datasource.*;
 import com.ruoyi.system.domain.dto.search.SearchRequest;
 import com.ruoyi.system.domain.vo.SearchVO;
-import com.ruoyi.system.service.PostService;
+import com.ruoyi.system.service.EsPostService;
 import com.ruoyi.system.service.SearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -38,7 +37,7 @@ public class SearchServiceImpl implements SearchService {
     private PictureDataSource pictureDataSource;
 
     @Autowired
-    private PostService postService;
+    private EsPostService postService;
 
     /**
      * 查询相关数据

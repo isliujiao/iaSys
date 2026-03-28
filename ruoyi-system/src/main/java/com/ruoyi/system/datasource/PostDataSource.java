@@ -6,7 +6,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.core.page.TableSupport;
 import com.ruoyi.system.domain.dto.post.PostQueryRequest;
 import com.ruoyi.system.domain.vo.PostVO;
-import com.ruoyi.system.service.PostService;
+import com.ruoyi.system.service.EsPostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 public class PostDataSource extends BaseController implements DataSource<PostVO> {
 
     @Resource
-    private PostService postService;
+    private EsPostService postService;
 
     @Override
     public TableDataInfo doSearch(String searchText) {

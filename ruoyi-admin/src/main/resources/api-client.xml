@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><ztb-api-client>
+    <clients>
+        <client>
+            <platformcode>a4f4c442-25b4-45f4-b6ad-d9aaed904acb</platformcode>
+            <appname/>
+            <projectname>天津港滨工程招标咨询有限公司《智能客服应用与研究》科研项目技术协作服务项目</projectname>
+            <productname/>
+            <areaname>天津市</areaname>
+            <buname>投标服务BU</buname>
+            <service-url>https://ai.ebpu.com/EpointDCWebService/rest</service-url>
+            <service-name>ebpugateway</service-name>
+            <sub-services>
+                <sub-service name="jyzj" url-prefix="/trader/jyzj/v2"/>
+                <sub-service name="jyzx" url-prefix="/trader/org/v2"/>
+                <sub-service name="jyzw" url-prefix="/trader/jyzw/v2"/>
+                <sub-service name="jyzwv3" url-prefix="/trader/jyzw/v3"/>
+                <sub-service name="jyidp" url-prefix="/trader/idp/v2"/>
+                <sub-service name="jyyq" url-prefix="/trader/jyyq/v2"/>
+                <sub-service name="jyzk" url-prefix="/trader/jyzk/v2"/>
+                <sub-service name="mcert" url-prefix="/trader/mcert/v1"/>
+                <sub-service name="jyzc" url-prefix="/trader/jyzc/v2"/>
+                <sub-service name="mohurd" url-prefix="/trader/mohurd/v2"/>
+                <sub-service name="llm" url-prefix="/trader/llm/v2"/>
+            </sub-services>
+            <client-id>SAAS</client-id>
+            <client-secret>Epoint@SAAS</client-secret>
+            <epaas-client-id>05b1da20-2452-444b-b528-ce2e80738840</epaas-client-id>
+            <epaas-client-secret>275ac9bb-d765-448b-be18-db334c098803</epaas-client-secret>
+            <epaas-client-iv>fa38a2c0-603d-4f2f-b02b-2d4ccfbc732d</epaas-client-iv>
+            <epaas-url>https://ai.ebpu.com/EpointDCWebService/rest</epaas-url>
+            <epass-node-url>https://ai.ebpu.com/EbpuNode/rest</epass-node-url>
+            <epass-client-pubkey>B0D8EBFC414818BA5459C567287BD1239A51713CAF8D2E0494C129624D05BBD8;717D69CEF3496F38250F007015471D64971C7C45282A74098C952E34E4492FFE</epass-client-pubkey>
+            <epass-client-prikey>009E82DDA5493687E109B3B6AB53033AF6C92320C5A3FCCE3A9482ED135522061C</epass-client-prikey>
+            <epass-client-authtime>259200</epass-client-authtime>
+        </client>
+    </clients>
+</ztb-api-client>
