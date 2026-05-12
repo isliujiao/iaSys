@@ -23,15 +23,30 @@
             <artifactId>ruoyi-common</artifactId>
         </dependency>
 
-        <!-- ElasticSearch-->
+        <!-- Spring Data ElasticSearch（提供 @Document、ElasticsearchRestTemplate 等） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
+
+        <!-- Netty（WebSocket 服务器） -->
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>7.8.0</version>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.68.Final</version>
+        </dependency>
+
+        <!-- PDFBox（文档文本提取） -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.29</version>
+        </dependency>
+
+        <!-- Apache POI（DOCX/XLSX 文本提取） -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
         </dependency>
 
     </dependencies>

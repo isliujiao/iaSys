@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.ruoyi.chat.ChatNettyServer;
+import com.ruoyi.common.config.RagConfigProperties;
 import com.ruoyi.common.config.XfxhConfig;
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.system.service.RagEmbeddingService;
+import com.ruoyi.system.service.RagVectorStoreService;
 import com.ruoyi.common.core.dto.ChatMsgDTO;
 import com.ruoyi.common.core.dto.ChatMsgVO;
 import com.ruoyi.common.core.dto.GroupMessageDTO;
@@ -42,6 +45,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -64,6 +69,15 @@ public class ChatHandler {
     @Autowired
     private XfxhConfig xfXhConfig;
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private RagEmbeddingService ragEmbeddingService;
+
+    @Autowired
+    private RagVectorStoreService ragVectorStoreService;
+
+    @Autowired
+    private RagConfigProperties ragConfigProperties;
 
     @Value("${tyqw.apiKey}")
     private String tyqwApiKey;
@@ -195,14 +209,14 @@ public class ChatHandler {
     }
 
     /**
-     * 向百炼-通义千问请求消息
+     * 向百炼-通义千问请求消息（集成RAG检索增强）
      *
      * @param ctx
      * @param question
      * @param loginUser
      */
     private void askTyqwGpt(ChannelHandlerContext ctx, String question, LoginUser loginUser) {
-        log.info("---------开始向百炼-通义千问发送消息---------");
+        log.info("---------开始向百炼-通义千问发送消息（RAG增强模式）---------");
         // 如果是无效字符串，则不对大模型进行请求
         if (StringUtils.isBlank(question)) {
             writeFlushFailUtil(ctx, "无效问题，请重新输入");
@@ -210,53 +224,82 @@ public class ChatHandler {
         }
 
         try {
-            // 创建请求体
+            // 1. RAG检索：获取相关文档上下文
+            String ragContext = "";
+            try {
+                // 1.1 生成问题向量
+                List<Float> questionEmbedding = ragEmbeddingService.embed(question);
+                if (questionEmbedding != null && !questionEmbedding.isEmpty()) {
+                    // 1.2 向量检索获取相关文档
+                    List<Map<String, Object>> searchResults = ragVectorStoreService.search(
+                            questionEmbedding,
+                            ragConfigProperties.getMaxResults(),
+                            ragConfigProperties.getMinScore()
+                    );
+
+                    // 1.3 构建RAG上下文
+                    ragContext = buildRagContext(searchResults);
+                    if (!ragContext.isEmpty()) {
+                        log.info("RAG检索到 {} 条相关文档", searchResults.size());
+                    } else {
+                        log.info("RAG未检索到相关文档，将使用通用模式回答");
+                    }
+                }
+            } catch (Exception ragEx) {
+                log.warn("RAG检索失败，将使用通用模式回答: {}", ragEx.getMessage());
+            }
+
+            // 2. 构建增强后的系统提示词
+            String systemPrompt = buildSystemPrompt(ragContext);
+
+            // 3. 创建请求体
             TyqwReqBody requestBody = new TyqwReqBody(
                     "qwen-plus",
                     new TyqwMsg[]{
-                            new TyqwMsg("system", "You are a helpful assistant.name is '小A'"),
+                            new TyqwMsg("system", systemPrompt),
                             new TyqwMsg("user", question)
                     }
             );
 
-            // 将请求体转换为 JSON
+            // 4. 发送请求到百炼API
             Gson gson = new Gson();
             String jsonInputString = gson.toJson(requestBody);
-            // 创建 URL 对象
             URL url = new URL("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-            // 设置请求方法为 POST
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-Type", "application/json; utf-8");
             httpURLConnection.setRequestProperty("Accept", "application/json");
-            // 若没有配置环境变量，请用百炼API Key将下行替换为：String apiKey = "sk-xxx";
             String apiKey = tyqwApiKey;
             String auth = "Bearer " + apiKey;
             httpURLConnection.setRequestProperty("Authorization", auth);
-            // 启用输入输出流
             httpURLConnection.setDoOutput(true);
-            // 写入请求体
+
             try (OutputStream os = httpURLConnection.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
-            // 获取响应码
+
             int responseCode = httpURLConnection.getResponseCode();
-            System.out.println("Response Code: " + responseCode);
-            // 读取响应体
+            log.info("百炼API响应码: {}", responseCode);
+
             try (BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), StandardCharsets.UTF_8))) {
                 StringBuilder response = new StringBuilder();
                 String responseLine;
-                // 响应大模型的答案
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
                 log.info("【百炼-通义千问响应结果：{}】", response);
+
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode rootNode = mapper.readTree(response.toString());
-                // 提取content值
                 String content = rootNode.path("choices").get(0).path("message").path("content").asText();
+
                 if (StringUtils.isNotEmpty(content)) {
+                    // 添加来源说明（如果有RAG上下文）
+                    if (!ragContext.isEmpty()) {
+                        content = content + "\n\n> 💡 *以上回答参考了系统内部文档*";
+                    }
+
                     ChatMsgVO chatMsgVO = ChatMsgVO.builder()
                             .type(ChatMsgType.ASK_GPT.getCode())
                             .nickName(loginUser.getUser().getNickName())
@@ -270,8 +313,45 @@ public class ChatHandler {
             }
         } catch (Exception e) {
             writeFlushFailUtil(ctx, "系统内部错误，请联系管理员");
-            log.error("错误：" + e.getMessage());
+            log.error("错误：" + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 构建RAG上下文
+     * @param results 检索结果
+     * @return 格式化的文档上下文
+     */
+    private String buildRagContext(List<Map<String, Object>> results) {
+        if (results == null || results.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n\n=== 以下是相关文档内容（请优先根据这些内容回答）===\n\n");
+        for (int i = 0; i < results.size(); i++) {
+            Map<String, Object> doc = results.get(i);
+            Object contentObj = doc.get("content");
+            if (contentObj != null) {
+                sb.append(String.format("【文档 %d】\n%s\n\n", i + 1, contentObj.toString()));
+            }
+        }
+        sb.append("=== 文档内容结束 ===\n");
+        return sb.toString();
+    }
+
+    /**
+     * 构建系统提示词
+     * @param ragContext RAG上下文（可选）
+     * @return 系统提示词
+     */
+    private String buildSystemPrompt(String ragContext) {
+        String base = "你是一个智能助手，名字叫'小助手'。请用友好、专业的语气回答用户的问题。";
+        if (!ragContext.isEmpty()) {
+            return base + "\n" + ragContext +
+                    "\n请根据上述文档内容回答用户问题。如果文档中有相关信息，请以文档为准。" +
+                    "如果文档中没有相关信息，请基于你的知识回答，但请说明这一点。";
+        }
+        return base + "\n请根据你的知识回答用户问题。";
     }
 
     @SneakyThrows

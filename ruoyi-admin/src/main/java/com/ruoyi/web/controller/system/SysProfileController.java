@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 import cn.hutool.core.date.DateTime;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.ObjectMetadata;
+import org.springframework.lang.Nullable;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +46,8 @@ public class SysProfileController extends BaseController {
     @Autowired
     private TokenService tokenService;
 
-    @Autowired
+    @Autowired(required = false)
+    @Nullable
     OSS ossClient;
 
     @Value("${spring.cloud.alicloud.oss.endpoint}")

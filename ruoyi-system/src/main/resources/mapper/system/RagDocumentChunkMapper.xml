@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RagDocumentChunkMapper">
+
+    <resultMap type="com.ruoyi.common.core.domain.entity.RagDocumentChunk" id="RagDocumentChunkResult">
+        <id property="id" column="id"/>
+        <result property="documentId" column="document_id"/>
+        <result property="chunkIndex" column="chunk_index"/>
+        <result property="content" column="content"/>
+        <result property="contentHash" column="content_hash"/>
+        <result property="esDocId" column="es_doc_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectChunksByDocumentId" parameterType="Long" resultMap="RagDocumentChunkResult">
+        select * from rag_document_chunk where document_id = #{documentId} order by chunk_index
+    </select>
+
+    <insert id="insertRagDocumentChunk" parameterType="com.ruoyi.common.core.domain.entity.RagDocumentChunk" useGeneratedKeys="true" keyProperty="id">
+        insert into rag_document_chunk
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="documentId != null">document_id,</if>
+            <if test="chunkIndex != null">chunk_index,</if>
+            <if test="content != null">content,</if>
+            <if test="contentHash != null">content_hash,</if>
+            <if test="esDocId != null">es_doc_id,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="documentId != null">#{documentId},</if>
+            <if test="chunkIndex != null">#{chunkIndex},</if>
+            <if test="content != null">#{content},</if>
+            <if test="contentHash != null">#{contentHash},</if>
+            <if test="esDocId != null">#{esDocId},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <delete id="deleteChunksByDocumentId" parameterType="Long">
+        delete from rag_document_chunk where document_id = #{documentId}
+    </delete>
+
+</mapper>

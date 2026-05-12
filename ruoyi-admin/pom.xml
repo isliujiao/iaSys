@@ -93,11 +93,11 @@
             <version>4.1.68.Final</version> <!-- 根据需要更改版本号 -->
         </dependency>
 
-        <!-- 阿里云OSS对象存储 -->
+        <!-- 阿里云OSS对象存储（直接使用SDK，不使用spring-cloud-alibaba） -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
-            <version>2.2.0.RELEASE</version>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.17.4</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -114,10 +114,10 @@
 
 
 
+        <!-- Apache POI Scratchpad (版本由根pom dependencyManagement统一管理) -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
-            <version>5.2.4</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
@@ -125,15 +125,17 @@
             <version>8.0.1</version>
             <type>pom</type>
         </dependency>
+
+        <!-- Apache POI Core -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>5.2.4</version>
         </dependency>
+
+        <!-- Apache POI OOXML -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>5.2.4</version>
         </dependency>
 
         <!-- Apache PDFBox for PDF operations -->
@@ -155,32 +157,10 @@
             <version>8.3.9</version>
         </dependency>
 
-        <!-- Apache POI Core -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
-        </dependency>
-
-        <!-- Apache POI OOXML -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>${poi.version}</version>
-        </dependency>
-
-        <!-- Apache POI Scratchpad -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-scratchpad</artifactId>
-            <version>${poi.version}</version>
-        </dependency>
-
-        <!-- XML Beans -->
+        <!-- XML Beans (版本由根pom dependencyManagement统一管理) -->
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-            <version>5.1.1</version>
         </dependency>
 
         <!-- iText 7 -->
@@ -210,7 +190,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.15</version>
+                <version>2.7.18</version>
                 <configuration>
                     <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
                 </configuration>
